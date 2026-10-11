@@ -1,13 +1,17 @@
-# AniMemory 
 <p align="center"><img src="banner.svg" alt="AniMemory" width="100%"></p>
 
+<h2 align="center">Which episode was I on?</h2>
 
-**Which episode was I on?** Find the anime episode you stopped at by stills, openings, a screenshot or a plot description.
-Dropped an anime a couple of years ago and can't remember where you stopped? This site helps you find out.
+<p align="center">
+Dropped an anime a couple of years ago and can't remember where you stopped?<br>
+Find your episode by stills, openings, a screenshot or a plot description.
+</p>
 
-**Website:** https://barguzin21.github.io/AniMemory/
+<p align="center"><b><a href="https://barguzin21.github.io/AniMemory/">👉 Open the website</a></b></p>
 
-## Ways to remember
+<p align="center"><a href="#ru">Читать на русском ↓</a></p>
+
+<h3>Ways to remember</h3>
 
 - **By stills.** See a still from an episode and answer "remember" or "don't". Even 1,000 episodes take about 10 questions.
 - **Stills grid.** Six stills at a time; pick the latest one you recognize.
@@ -17,27 +21,27 @@ Dropped an anime a couple of years ago and can't remember where you stopped? Thi
 - **From browser history** or **a link** to the anime on any site.
 - **Import** your list from Shikimori or AniList.
 
-## Also
+<h3>Also</h3>
 
 - "My anime" list with progress and new episode alerts
-- Works on phones
+- Works on phones and installs as an app
 - English and Russian
 - Free, no sign-up, your data stays in your browser
 
-Data: Shikimori, AniList, Kitsu, TVmaze, Wikipedia, AnimeThemes, trace.moe.
+<sub>Data: Shikimori, AniList, Kitsu, TVmaze, Wikipedia, AnimeThemes, trace.moe · © All rights reserved.</sub>
 
-© All rights reserved.
+<br><br>
 
----
+<h2 align="center" id="ru">На какой я серии?</h2>
 
-<h2>На какой я серии?</h2>
+<p align="center">
+Бросил аниме пару лет назад и не помнишь, где остановился?<br>
+Найди свою серию по кадрам, опенингам, скриншоту или описанию сюжета.
+</p>
 
-Вспомни, на какой серии аниме ты остановился: по кадрам, опенингам, скриншоту или описанию сюжета.
-Бросил аниме пару лет назад и не помнишь, где остановился? Этот сайт поможет вспомнить.
+<p align="center"><b><a href="https://barguzin21.github.io/AniMemory/">👉 Открыть сайт</a></b></p>
 
-**Сайт:** https://barguzin21.github.io/AniMemory/
-
-## Как вспомнить
+<h3>Как вспомнить</h3>
 
 - **По кадрам.** Показываем кадр из серии, ты отвечаешь «помню» или «нет». Даже на 1000 серий хватит около 10 вопросов.
 - **Сеткой кадров.** 6 кадров за раз, выбираешь самый поздний знакомый.
@@ -47,13 +51,11 @@ Data: Shikimori, AniList, Kitsu, TVmaze, Wikipedia, AnimeThemes, trace.moe.
 - **По истории браузера** и **по ссылке** на тайтл с любого сайта.
 - **Импорт** списка с Shikimori или AniList.
 
-## Ещё
+<h3>Ещё</h3>
 
 - Список «Мои тайтлы» с прогрессом и отметкой о новых сериях
 - Работает на телефоне, можно установить как приложение
 - Русский и английский язык
 - Бесплатно, без регистрации, данные хранятся только в твоём браузере
 
-Данные: Shikimori, AniList, Kitsu, TVmaze, Wikipedia, AnimeThemes, trace.moe.
-
-© Все права защищены.
+<sub>Данные: Shikimori, AniList, Kitsu, TVmaze, Wikipedia, AnimeThemes, trace.moe · © Все права защищены.</sub>
