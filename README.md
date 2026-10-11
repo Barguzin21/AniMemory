@@ -28,6 +28,7 @@ Data: Shikimori, AniList, Kitsu, TVmaze, Wikipedia, AnimeThemes, trace.moe.
 
 © All rights reserved.
 
+--
 
 # На какой я серии?
 
