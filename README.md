@@ -20,7 +20,7 @@ Dropped an anime a couple of years ago and can't remember where you stopped? Thi
 ## Also
 
 - "My anime" list with progress and new episode alerts
-- Works on phones and installs as an app
+- Works on phones
 - English and Russian
 - Free, no sign-up, your data stays in your browser
 
@@ -28,7 +28,6 @@ Data: Shikimori, AniList, Kitsu, TVmaze, Wikipedia, AnimeThemes, trace.moe.
 
 © All rights reserved.
 
--
 
 # На какой я серии?
 
