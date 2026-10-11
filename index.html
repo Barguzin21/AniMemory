@@ -1,0 +1,2196 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#0e0f11">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>На какой я серии?</title>
+<meta name="description" content="Вспомни, на какой серии аниме ты остановился: пара вопросов по кадрам, и готово.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>
+/* Shape system: surfaces 16px, media 12px, interactive controls full pill. */
+:root {
+  --bg: #0e0f11; --surface: #16181b; --surface-2: #1e2125; --line: #2a2d33;
+  --fg: #ededeb; --mut: #9097a0; --faint: #5c626b;
+  --acc: #ff5d73; --acc-fg: #1c0b0f; --acc-soft: rgb(255 93 115 / .14);
+  --shadow: 0 24px 60px rgb(0 0 0 / .45);
+  --r: 16px; --r-media: 12px;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --font: "Onest", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+:root[data-theme="light"] {
+  --bg: #f3f4f6; --surface: #fcfcfd; --surface-2: #eceef1; --line: #dcdfe4;
+  --fg: #15171a; --mut: #59606a; --faint: #9aa0a8;
+  --acc: #e03552; --acc-fg: #fff7f8; --acc-soft: rgb(224 53 82 / .1);
+  --shadow: 0 24px 60px rgb(40 44 52 / .14);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f3f4f6; --surface: #fcfcfd; --surface-2: #eceef1; --line: #dcdfe4;
+    --fg: #15171a; --mut: #59606a; --faint: #9aa0a8;
+    --acc: #e03552; --acc-fg: #fff7f8; --acc-soft: rgb(224 53 82 / .1);
+    --shadow: 0 24px 60px rgb(40 44 52 / .14);
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--font); -webkit-font-smoothing: antialiased; }
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+button, input { font: inherit; color: inherit; }
+::selection { background: var(--acc); color: var(--acc-fg); }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+.mono { font-family: var(--mono); font-size: .92em; letter-spacing: -.01em; }
+.mut { color: var(--mut); }
+.wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+@media (max-width: 640px) { .wrap { padding: 0 16px; } }
+
+/* Top bar */
+.top { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.top .wrap { display: flex; align-items: center; gap: 8px; height: 64px; }
+.logo { font-weight: 700; font-size: 19px; letter-spacing: -.02em; text-decoration: none; margin-right: auto; display: flex; align-items: center; gap: 2px; }
+.logo b { color: var(--acc); }
+@media (max-width: 480px) { .top .btn span { display: none; } .top .btn.sm { width: 40px; padding: 0; } }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; cursor: pointer; white-space: nowrap; text-decoration: none; transition: transform .15s var(--ease), background .2s, border-color .2s; }
+.btn:hover { background: var(--surface-2); }
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .4; cursor: default; transform: none; }
+.btn.primary { background: var(--acc); border-color: transparent; color: var(--acc-fg); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.07); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--mut); }
+.btn.ghost:hover { color: var(--fg); background: var(--surface); }
+.btn.sm { height: 38px; padding: 0 16px; font-size: 14px; }
+.btn.icon { width: 40px; height: 40px; padding: 0; }
+.btn i { font-size: 1.2em; }
+kbd { font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius: 6px; border: 1px solid currentColor; opacity: .55; margin-left: 4px; }
+@media (hover: none) { kbd { display: none; } }
+
+/* Home */
+.hero { padding: 72px 0 32px; }
+.hero h1 { font-size: clamp(40px, 7vw, 72px); line-height: 1; letter-spacing: -.045em; margin: 0 0 18px; font-weight: 700; }
+.hero h1 b { color: var(--acc); font-weight: 700; }
+.hero p { font-size: 18px; color: var(--mut); margin: 0 0 32px; max-width: 46ch; }
+@media (max-width: 640px) { .hero { padding: 40px 0 24px; } .hero p { font-size: 16px; } }
+.search { position: relative; max-width: 640px; }
+.search label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.search .field { display: flex; align-items: center; gap: 12px; height: 60px; padding: 0 8px 0 22px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); transition: border-color .2s, box-shadow .2s; }
+.search .field:focus-within { border-color: var(--acc); box-shadow: 0 0 0 4px var(--acc-soft); }
+.search .field > i { font-size: 22px; color: var(--mut); }
+.search input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font-size: 18px; }
+.search input::placeholder { color: var(--faint); }
+.results { margin-top: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 6px; box-shadow: var(--shadow); }
+.results:empty { display: none; }
+.res { display: grid; grid-template-columns: 44px 1fr auto; gap: 14px; align-items: center; padding: 8px 10px; border-radius: 12px; cursor: pointer; text-decoration: none; }
+.res[aria-selected="true"], .res:hover { background: var(--surface-2); }
+.res img, .res .ph-img { width: 44px; height: 62px; border-radius: 8px; object-fit: cover; background: var(--surface-2); }
+.res .t { font-weight: 600; line-height: 1.25; }
+.res .s { font-size: 13px; color: var(--mut); margin-top: 2px; }
+.res .n { font-size: 13px; color: var(--mut); text-align: right; }
+.res-msg { padding: 14px 12px; color: var(--mut); font-size: 15px; }
+.how { display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 28px; color: var(--mut); font-size: 15px; }
+.how span { display: inline-flex; align-items: center; gap: 8px; }
+.how i { color: var(--acc); font-size: 18px; }
+
+.section { padding-block: 40px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 40px; align-items: center; }
+@media (max-width: 960px) { .hero { grid-template-columns: 1fr; } .fan { display: none; } }
+.fan { position: relative; height: 400px; }
+.fan a { position: absolute; top: 50%; left: 50%; width: 190px; aspect-ratio: 2/3; border-radius: var(--r-media); overflow: hidden; background: var(--surface-2); box-shadow: var(--shadow); transition: transform .5s var(--ease), box-shadow .3s; animation: fanIn .8s var(--ease) both; }
+.fan a img { width: 100%; height: 100%; object-fit: cover; }
+.fan a:nth-child(1) { transform: translate(-112%, -46%) rotate(-9deg); animation-delay: .05s; }
+.fan a:nth-child(2) { transform: translate(-50%, -54%); z-index: 2; animation-delay: .15s; }
+.fan a:nth-child(3) { transform: translate(12%, -46%) rotate(9deg); animation-delay: .25s; }
+.fan a:hover { z-index: 3; box-shadow: 0 30px 70px rgb(0 0 0 / .55); }
+.fan a:nth-child(1):hover { transform: translate(-116%, -52%) rotate(-11deg); }
+.fan a:nth-child(2):hover { transform: translate(-50%, -60%); }
+.fan a:nth-child(3):hover { transform: translate(16%, -52%) rotate(11deg); }
+.fan a span { position: absolute; inset: auto 0 0 0; padding: 28px 12px 10px; font-size: 13px; font-weight: 600; color: #f2f2f0; background: linear-gradient(transparent, rgb(8 9 10 / .85)); opacity: 0; transition: opacity .25s; }
+.fan a:hover span, .fan a:focus-visible span { opacity: 1; }
+@keyframes fanIn { from { opacity: 0; translate: 0 24px; } to { opacity: 1; translate: 0 0; } }
+.rail { display: grid; grid-auto-flow: column; grid-auto-columns: 140px; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 10px; scrollbar-width: thin; }
+.rail a { scroll-snap-align: start; text-decoration: none; }
+.rail .poster { aspect-ratio: 2/3; border-radius: var(--r-media); overflow: hidden; background: var(--surface-2); }
+.rail .poster img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s var(--ease); }
+.rail a:hover .poster img { transform: scale(1.04); }
+.rail .t { font-size: 14px; font-weight: 500; line-height: 1.3; margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.rail .s { font-size: 12px; color: var(--mut); }
+.rail.skel-rail .poster { animation: shimmer 1.4s linear infinite; background: linear-gradient(100deg, var(--surface-2) 30%, color-mix(in srgb, var(--surface-2) 70%, var(--fg) 6%) 50%, var(--surface-2) 70%); background-size: 300% 100%; }
+.section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.section-head h2 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
+
+.resume { display: flex; align-items: center; gap: 16px; padding: 14px 14px 14px 14px; border-radius: var(--r); background: var(--acc-soft); border: 1px solid color-mix(in srgb, var(--acc) 30%, transparent); margin-top: 28px; max-width: 640px; }
+.resume img { width: 40px; height: 56px; border-radius: 8px; object-fit: cover; }
+.resume div { flex: 1; min-width: 0; }
+.resume b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Library grid */
+.lib { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 20px 16px; }
+.card { position: relative; }
+.card .poster { position: relative; aspect-ratio: 2/3; border-radius: var(--r-media); overflow: hidden; background: var(--surface-2); }
+.card .poster img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s var(--ease); }
+.card:hover .poster img { transform: scale(1.03); }
+.card .poster a { position: absolute; inset: 0; }
+.card .prog { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--acc); }
+.card h3 { font-size: 15px; line-height: 1.3; margin: 10px 0 2px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card .meta { font-size: 13px; color: var(--mut); }
+.card .ctrl { display: flex; align-items: center; gap: 4px; margin-top: 8px; }
+.card .ctrl .btn { width: 34px; height: 34px; }
+.card .ctrl .ep { flex: 1; text-align: center; font-size: 13px; }
+.empty { padding: 48px 24px; border: 1px dashed var(--line); border-radius: var(--r); text-align: center; color: var(--mut); }
+.empty i { font-size: 36px; color: var(--faint); display: block; margin-bottom: 8px; }
+
+/* Title page */
+.backdrop { position: absolute; inset: 0 0 auto 0; height: 520px; overflow: hidden; z-index: -1; pointer-events: none; }
+.backdrop img { width: 100%; height: 100%; object-fit: cover; filter: blur(60px) saturate(1.3); opacity: .35; transform: scale(1.2); }
+.backdrop::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 0%, var(--bg) 92%); }
+.title-head { display: grid; grid-template-columns: 220px 1fr; gap: 36px; padding: 40px 0 8px; align-items: start; }
+.title-head .poster { border-radius: var(--r-media); overflow: hidden; aspect-ratio: 2/3; background: var(--surface-2); box-shadow: var(--shadow); }
+.title-head .poster img { width: 100%; height: 100%; object-fit: cover; }
+.title-head h1 { font-size: clamp(30px, 4.6vw, 48px); line-height: 1.05; letter-spacing: -.035em; margin: 4px 0 8px; }
+.title-head .desc-wrap { grid-column: 2; }
+.title-head .orig { color: var(--mut); margin: 0 0 16px; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--mut); margin-bottom: 16px; }
+.facts span { display: inline-flex; align-items: center; gap: 6px; }
+.facts i { font-size: 16px; }
+.desc { color: color-mix(in srgb, var(--fg) 82%, var(--bg)); max-width: 62ch; margin: 0; }
+.desc.clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--acc); cursor: pointer; font-size: 14px; margin-top: 6px; }
+@media (max-width: 720px) {
+  .title-head { grid-template-columns: 112px 1fr; gap: 18px; padding-top: 24px; }
+  .title-head .desc-wrap { grid-column: 1 / -1; }
+}
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 24px; }
+@media (max-width: 640px) { .panel { padding: 18px 16px; } }
+.seg { display: inline-flex; padding: 4px; background: var(--surface-2); border-radius: 999px; gap: 2px; flex-wrap: wrap; }
+.seg button { border: 0; background: none; height: 36px; padding: 0 16px; border-radius: 999px; cursor: pointer; color: var(--mut); font-weight: 500; font-size: 14px; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 3px rgb(0 0 0 / .2); }
+.entries { margin: 18px 0 0; display: grid; gap: 4px; }
+.entry { display: grid; grid-template-columns: 22px 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 10px; border-radius: 12px; cursor: pointer; }
+.entry:hover { background: var(--surface-2); }
+.entry input { width: 18px; height: 18px; accent-color: var(--acc); margin: 0; cursor: pointer; }
+.entry img, .entry .ph-img { width: 34px; height: 48px; border-radius: 6px; object-fit: cover; background: var(--surface-2); }
+.entry .t { font-weight: 500; line-height: 1.3; font-size: 15px; }
+.entry .s { font-size: 13px; color: var(--mut); }
+.entry .n { font-size: 13px; color: var(--mut); }
+.entry.cur .t::after { content: "этот"; margin-left: 8px; font-size: 11px; font-weight: 600; color: var(--acc); background: var(--acc-soft); padding: 2px 8px; border-radius: 999px; vertical-align: 2px; }
+details.more { margin-top: 10px; }
+details.more summary { cursor: pointer; color: var(--mut); font-size: 14px; padding: 8px 10px; list-style: none; display: inline-flex; gap: 6px; align-items: center; }
+details.more summary::-webkit-details-marker { display: none; }
+details.more[open] summary i { transform: rotate(90deg); }
+details.more summary i { transition: transform .2s; }
+
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+@media (max-width: 720px) { .opts { grid-template-columns: 1fr; } }
+.opt { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; background: var(--surface-2); cursor: pointer; }
+.opt .tx b { display: block; font-weight: 500; font-size: 15px; }
+.opt .tx span { font-size: 13px; color: var(--mut); }
+.switch { position: relative; flex: none; width: 40px; height: 24px; margin-top: 1px; }
+.switch input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.switch span { position: absolute; inset: 0; border-radius: 999px; background: var(--line); transition: background .2s; pointer-events: none; }
+.switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--fg); transition: transform .25s var(--ease); }
+.switch input:checked + span { background: var(--acc); }
+.switch input:checked + span::after { transform: translateX(16px); background: var(--acc-fg); }
+.switch input:focus-visible + span { outline: 2px solid var(--acc); outline-offset: 2px; }
+.range-in { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; color: var(--mut); margin-top: 14px; }
+.range-in input { width: 84px; height: 38px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); padding: 0 14px; text-align: center; font-family: var(--mono); }
+.range-in input:focus { outline: none; border-color: var(--acc); }
+.startbar { position: sticky; bottom: 0; padding: 16px 0 calc(16px + env(safe-area-inset-bottom)); margin-top: 24px; background: linear-gradient(to top, var(--bg) 70%, transparent); display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.startbar .btn.primary { height: 54px; padding: 0 30px; font-size: 17px; }
+@media (max-width: 640px) { .startbar { flex-direction: column-reverse; align-items: stretch; gap: 8px; } .startbar #summary { text-align: center; } }
+
+/* Quiz */
+.quiz { padding-block: 24px 40px; }
+.qbar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; font-size: 14px; color: var(--mut); }
+.qbar .grow { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.timeline { position: relative; height: 26px; margin-bottom: 22px; }
+.timeline .segs { position: absolute; inset: 11px 0; display: flex; gap: 3px; }
+.timeline .segs div { height: 4px; border-radius: 2px; background: var(--line); }
+.timeline .known { position: absolute; top: 11px; left: 0; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--acc) 45%, transparent); transition: width .5s var(--ease); }
+.timeline .win { position: absolute; top: 5px; height: 16px; border-radius: 6px; border: 1.5px solid var(--acc); transition: left .5s var(--ease), width .5s var(--ease); }
+.timeline .mark { position: absolute; top: 0; width: 2px; height: 26px; margin-left: -1px; background: var(--fg); border-radius: 1px; transition: left .5s var(--ease); }
+.qgrid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+@media (max-width: 860px) { .qgrid { grid-template-columns: 1fr; gap: 18px; } }
+.shot { position: relative; aspect-ratio: 16/9; border-radius: var(--r); overflow: hidden; background: var(--surface-2); touch-action: pan-y; user-select: none; box-shadow: var(--shadow); }
+.shot img { width: 100%; height: 100%; object-fit: cover; -webkit-user-drag: none; }
+.shot img.contain { object-fit: contain; background: #0b0c0e; }
+.shot .nodata { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; color: var(--mut); gap: 6px; padding: 20px; font-size: 15px; }
+.shot .nodata i { font-size: 34px; color: var(--faint); }
+.shot .stamp { position: absolute; top: 16px; padding: 6px 14px; border-radius: 999px; font-weight: 600; font-size: 14px; opacity: 0; transition: opacity .15s; pointer-events: none; }
+.shot .stamp.y { right: 16px; background: var(--acc); color: var(--acc-fg); }
+.shot .stamp.n { left: 16px; background: var(--fg); color: var(--bg); }
+.skel { background: linear-gradient(100deg, var(--surface-2) 30%, color-mix(in srgb, var(--surface-2) 70%, var(--fg) 6%) 50%, var(--surface-2) 70%); background-size: 300% 100%; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: -50% 0; } }
+.skel-line { height: 14px; border-radius: 7px; margin: 10px 0; }
+.qinfo .where { font-size: 14px; color: var(--mut); margin-bottom: 6px; }
+.qinfo .where b { color: var(--acc); font-weight: 600; }
+.qinfo h2 { font-size: clamp(22px, 2.6vw, 30px); line-height: 1.15; letter-spacing: -.025em; margin: 0 0 4px; }
+.qinfo .alt { font-size: 14px; color: var(--mut); margin: 0 0 16px; }
+.syn { position: relative; color: color-mix(in srgb, var(--fg) 85%, var(--bg)); font-size: 15px; margin: 0; }
+.syn.hidden { cursor: pointer; }
+.syn.hidden p { filter: blur(7px); user-select: none; }
+.syn.hidden::after { content: "Описание скрыто от спойлеров. Нажми, чтобы показать"; position: absolute; inset: 0; display: grid; place-items: center; text-align: center; font-size: 14px; font-weight: 500; color: var(--fg); padding: 0 12px; }
+.syn p { margin: 0; transition: filter .3s; }
+.syn.hidden + .syn-tools { display: none; }
+.syn-tools { display: flex; gap: 14px; margin-top: 8px; font-size: 13px; }
+.answers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 24px; }
+.answers .btn { height: 56px; font-size: 16px; }
+.answers .wide { grid-column: 1 / -1; }
+.answers-sub { display: flex; justify-content: space-between; margin-top: 6px; }
+@media (max-width: 860px) {
+  .qinfo { display: flex; flex-direction: column; }
+  .answers { position: sticky; bottom: 0; z-index: 5; order: 3; margin: 16px -16px 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .answers .btn { height: 52px; }
+  .answers-sub { order: 4; }
+  .shot { box-shadow: none; }
+}
+.slide-in { animation: slideIn .45s var(--ease) both; }
+.slide-in.from-l { animation-name: slideInL; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes slideInL { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+
+/* Result */
+.result { padding-block: 40px 48px; }
+.result .lead { font-size: 15px; color: var(--mut); margin: 0 0 6px; }
+.result h1 { font-size: clamp(34px, 5.4vw, 56px); line-height: 1.04; letter-spacing: -.04em; margin: 0 0 8px; }
+.result h1 b { color: var(--acc); }
+.result .sub { color: var(--mut); margin: 0 0 32px; max-width: 60ch; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }
+.epcard { border-radius: var(--r); overflow: hidden; background: var(--surface); border: 1px solid var(--line); }
+.epcard.next { border-color: color-mix(in srgb, var(--acc) 55%, var(--line)); }
+.epcard .img { aspect-ratio: 16/9; background: var(--surface-2); }
+.epcard .img img { width: 100%; height: 100%; object-fit: cover; }
+.epcard .body { padding: 16px 18px 18px; }
+.epcard .k { font-size: 13px; color: var(--mut); }
+.epcard.next .k { color: var(--acc); font-weight: 600; }
+.epcard h3 { margin: 4px 0 0; font-size: 18px; line-height: 1.25; letter-spacing: -.01em; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.recap { margin-top: 36px; display: grid; gap: 14px; }
+.recap h2 { font-size: 22px; letter-spacing: -.02em; margin: 0 0 4px; }
+.recap-item { display: grid; grid-template-columns: 200px 1fr; gap: 18px; padding: 14px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); }
+.recap-item .img { aspect-ratio: 16/9; border-radius: var(--r-media); overflow: hidden; background: var(--surface-2); }
+.recap-item .img img { width: 100%; height: 100%; object-fit: cover; }
+.recap-item h3 { margin: 0 0 6px; font-size: 16px; }
+.recap-item p { margin: 0; font-size: 14px; color: color-mix(in srgb, var(--fg) 80%, var(--bg)); }
+@media (max-width: 640px) { .recap-item { grid-template-columns: 1fr; } }
+
+.loading-page { padding-block: 80px; display: grid; place-items: center; color: var(--mut); gap: 12px; }
+.err { padding-block: 60px; text-align: center; color: var(--mut); }
+.err i { font-size: 40px; color: var(--faint); display: block; margin-bottom: 10px; }
+
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0; background: var(--fg); color: var(--bg); padding: 12px 18px; border-radius: 999px; font-size: 14px; font-weight: 500; display: flex; gap: 14px; align-items: center; transition: opacity .25s, transform .35s var(--ease); z-index: 50; pointer-events: none; max-width: calc(100vw - 32px); }
+.toast.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.toast button { background: none; border: 0; color: var(--acc); font-weight: 600; cursor: pointer; padding: 0; }
+.foot { padding: 40px 0 32px; color: var(--faint); font-size: 13px; }
+.foot a { color: var(--mut); }
+.fade-in { animation: fadeIn .4s var(--ease) both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* v3: memory tools */
+[hidden] { display: none !important; }
+.syn.hidden::after { content: attr(data-label); }
+.entry.cur .t::after { content: attr(data-this); }
+.faint { color: var(--faint); }
+.lang-btn b { font-weight: 600; font-size: 13px; letter-spacing: .02em; }
+@media (max-width: 480px) { .lang-btn i { display: none; } }
+.match .k b.lv0 { color: var(--mut); }
+.drop { display: grid; place-items: center; text-align: center; gap: 6px; padding: 36px 20px; border: 1.5px dashed var(--line); border-radius: var(--r); cursor: pointer; transition: border-color .2s, background .2s; }
+.drop:hover, .drop.over, .drop:focus-visible { border-color: var(--acc); background: var(--acc-soft); }
+.drop i { font-size: 36px; color: var(--acc); }
+.drop b { font-weight: 600; }
+.match video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.spin { display: inline-block; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; max-width: 640px; }
+.tools > * { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px 0 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; text-decoration: none; cursor: pointer; font-size: 14px; color: var(--fg); transition: background .2s, border-color .2s; }
+.tools > *:hover { background: var(--surface); border-color: color-mix(in srgb, var(--acc) 45%, var(--line)); }
+.tools i { font-size: 18px; color: var(--acc); }
+.head-actions { display: flex; flex-wrap: wrap; gap: 4px; }
+.ph2 { margin: 0 0 4px; font-size: 20px; letter-spacing: -.02em; }
+.methods { margin-top: 12px; }
+@media (max-width: 640px) {
+  .seg.methods { display: grid; grid-template-columns: 1fr 1fr; border-radius: 16px; width: 100%; }
+  .seg.methods button { border-radius: 12px; height: 44px; padding: 0 10px; }
+}
+.seg button i { margin-right: 6px; vertical-align: -2px; }
+.mdesc { margin: 12px 0 0; font-size: 14px; max-width: 72ch; }
+#mbody:not(:empty) { margin-top: 18px; }
+.lbl { display: block; font-weight: 500; font-size: 15px; margin-bottom: 8px; }
+textarea { width: 100%; resize: vertical; min-height: 96px; padding: 14px 16px; border-radius: var(--r-media); border: 1px solid var(--line); background: var(--surface-2); color: var(--fg); font: inherit; line-height: 1.5; }
+textarea:focus { outline: none; border-color: var(--acc); box-shadow: 0 0 0 4px var(--acc-soft); }
+textarea::placeholder { color: var(--faint); }
+.mrow { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-top: 12px; }
+.opt.slim { background: none; padding: 0; flex: 1; min-width: 240px; }
+.prog-box { margin-top: 18px; font-size: 14px; }
+.pbar { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; margin-top: 8px; }
+.pbar i { display: block; height: 100%; background: var(--acc); transition: width .3s var(--ease); }
+.matches { display: grid; gap: 12px; margin-top: 18px; }
+.match { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 18px; padding: 12px; border-radius: var(--r); background: var(--surface-2); }
+.match .img { aspect-ratio: 16/9; border-radius: var(--r-media); overflow: hidden; background: var(--surface); }
+.match .img img { width: 100%; height: 100%; object-fit: cover; }
+.match .k { font-size: 13px; color: var(--mut); }
+.match .k b { color: var(--acc); font-weight: 600; }
+.match h3 { margin: 2px 0 6px; font-size: 17px; line-height: 1.25; }
+.match .syn { font-size: 14px; }
+.match .syn p { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.match .syn.hidden::after { font-size: 13px; }
+.match .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+@media (max-width: 640px) { .match { grid-template-columns: 1fr; } }
+.themes { display: grid; gap: 6px; }
+.theme-h { font-size: 13px; color: var(--mut); margin: 12px 0 2px; font-weight: 500; }
+.theme { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); transition: box-shadow .2s; }
+.theme.skel { display: block; }
+.theme .t { font-weight: 500; line-height: 1.3; }
+.theme .s { font-size: 13px; color: var(--mut); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 11px; padding: 2px 7px; border-radius: 999px; background: var(--acc-soft); color: var(--acc); margin-right: 8px; vertical-align: 1px; }
+.tag.ed { background: color-mix(in srgb, var(--fg) 9%, transparent); color: var(--mut); }
+.theme .play { width: 44px; height: 44px; }
+.theme.on .play { background: var(--acc); color: var(--acc-fg); border-color: transparent; }
+.theme .vid { grid-column: 1 / -1; }
+.theme .vid:empty { display: none; }
+.theme .vid video { width: 100%; max-width: 560px; aspect-ratio: 16/9; border-radius: var(--r-media); background: #0b0c0e; display: block; }
+.theme.picked { box-shadow: inset 0 0 0 2px var(--acc); }
+@media (max-width: 640px) { .theme { grid-template-columns: 44px minmax(0, 1fr); } .theme .pick { grid-column: 1 / -1; } }
+.tconfirm { padding: 16px 18px; border-radius: var(--r); background: var(--acc-soft); border: 1px solid color-mix(in srgb, var(--acc) 30%, transparent); margin-top: 12px; }
+.tconfirm p { margin: 0 0 10px; }
+.tconfirm .row { display: flex; flex-wrap: wrap; gap: 8px; }
+.hint { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; background: var(--acc-soft); font-size: 14px; margin-bottom: 16px; }
+.hint[hidden] { display: none; }
+.hint i { color: var(--acc); font-size: 18px; margin-top: 1px; }
+.range-in select { height: 38px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg); padding: 0 12px; font: inherit; font-size: 14px; }
+.range-in select:focus { outline: none; border-color: var(--acc); }
+.gq-hint { margin: 0 0 14px; color: var(--mut); }
+.gq-hint b { color: var(--fg); }
+.gq { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 720px) { .gq { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
+.gcell { text-align: left; padding: 0; border: 1px solid var(--line); background: var(--surface); border-radius: var(--r); overflow: hidden; cursor: pointer; transition: transform .15s var(--ease), border-color .2s; }
+.gcell:hover { border-color: var(--acc); }
+.gcell:active { transform: scale(.98); }
+.gshot { position: relative; aspect-ratio: 16/9; background: var(--surface-2); }
+.gshot img { width: 100%; height: 100%; object-fit: cover; }
+.gshot img.contain { object-fit: contain; background: #0b0c0e; }
+.gmeta { padding: 10px 12px 0; font-size: 13px; color: var(--mut); display: flex; align-items: center; gap: 6px; }
+.gmeta .gk { margin: 0; }
+.gt { padding: 2px 12px 12px; font-size: 14px; font-weight: 500; line-height: 1.3; min-height: 2.6em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.gq-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 18px; }
+.nodata.small { position: absolute; inset: 0; display: grid; place-items: center; color: var(--faint); font-size: 24px; }
+.timeline .ticks i { position: absolute; top: 4px; width: 2px; height: 18px; margin-left: -1px; background: var(--fg); opacity: .75; border-radius: 1px; }
+.badge-new { color: var(--acc); font-weight: 600; }
+.narrow { max-width: 820px; }
+.page-h { font-size: 32px; letter-spacing: -.03em; margin: 0 0 8px; }
+.lead-p { margin: 0 0 22px; max-width: 62ch; }
+.steps { margin: 0 0 18px; padding-left: 22px; color: color-mix(in srgb, var(--fg) 85%, var(--bg)); }
+.steps li { margin: 4px 0; }
+.steps kbd { display: inline; opacity: .8; margin: 0 1px; }
+.list { display: grid; gap: 8px; margin-top: 18px; }
+.hrow, .imp-row { display: grid; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.hrow { grid-template-columns: minmax(0, 1fr) auto; }
+.hrow .sample { font-size: 12px; color: var(--faint); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hrow .picks { grid-column: 1 / -1; }
+.hrow .picks:empty { display: none; }
+.imp-row { grid-template-columns: 22px 40px minmax(0, 1fr) auto; cursor: pointer; }
+.imp-row input { width: 18px; height: 18px; accent-color: var(--acc); margin: 0; }
+.imp-row img, .imp-row .ph-img { width: 40px; height: 56px; border-radius: 6px; object-fit: cover; background: var(--surface-2); }
+.imp-row .t { font-weight: 500; line-height: 1.3; }
+.imp-row .s { font-size: 13px; color: var(--mut); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.xfer { margin-top: 16px; }
+.xfer[hidden] { display: none; }
+.xfer textarea { min-height: 80px; font-family: var(--mono); font-size: 12px; word-break: break-all; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#/" id="logo">серия<b>?</b></a>
+    <a class="btn ghost sm" href="#/library" id="nav-lib"><i class="ph ph-books"></i><span>Мои тайтлы</span></a>
+    <button class="btn ghost sm lang-btn" id="lang"><i class="ph ph-globe-simple"></i><b>RU</b></button>
+    <button class="btn ghost icon" id="theme" aria-label="Тема"><i class="ph ph-circle-half"></i></button>
+  </div>
+</header>
+<main id="app"></main>
+<footer class="foot"><div class="wrap" id="foot"></div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ---------- utils ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const app = $('#app');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const stripBB = s => (s || '').replace(/\[(\w+)(=[^\]]*)?\]|\[\/\w+\]/g, '').replace(/\r/g, '').trim();
+const stripTags = s => (s || '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&nbsp;/g, ' ').trim();
+const plural = (n, one, few, many) => { const a = Math.abs(n) % 100, b = a % 10; return a > 10 && a < 20 ? many : b > 1 && b < 5 ? few : b === 1 ? one : many; };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const byDate = (x, y) => (x.date || '9999').localeCompare(y.date || '9999');
+const chunks = (a, n) => Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, i * n + n));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('nks.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('nks.' + k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem('nks.' + k); } catch {} },
+};
+
+/* ---------- i18n: Russian strings are the keys, EN holds translations ---------- */
+const EN = {"Загружаю описания серий": "Loading episode summaries","у этих серий нет описаний": "these episodes have no summaries","Разбираю твоё описание": "Reading your description","Загружаю ИИ-модель (один раз, около 25 МБ)": "Loading the AI model (one time, about 25 MB)","ИИ читает описания серий": "AI is reading episode summaries","фильм": "movie","серия {n}": "episode {n}","фильм «{title}»": "the movie “{title}”","{n}-ю серию": "episode {n}"," «{title}»": " of “{title}”","{h} ч {m} мин": "{h} h {m} min","{h} ч": "{h} h","{m} мин": "{m} min","Тема: {name}": "Theme: {name}","как в системе": "system","тёмная": "dark","светлая": "light","серия": "episode","На главную": "Home","Мои тайтлы": "My anime","Язык: русский. Переключить на английский": "Language: English. Switch to Russian","Данные: {links}. Список хранится в этом браузере, на другое устройство его можно перенести кодом в «Моих тайтлах».": "Data: {links}. Your list is stored in this browser; move it to another device with a transfer code in “My anime”.","Тема как в системе": "System theme","Тёмная тема": "Dark theme","Светлая тема": "Light theme","Загружаю…": "Loading…","Ещё раз": "Try again","{d} из {n}": "{d} of {n}","новая серия {date}": "new episode {date}","Досмотрено": "Finished","Дальше: {what}": "Next: {what}","≈ {time} до конца": "≈ {time} to go","Минус серия": "One episode back","Плюс серия": "One episode forward","Удалить": "Remove","Удалено из списка": "Removed from the list","Вернуть": "Undo","На какой я серии?": "Which episode was I on?","На какой я<br>серии<b>?</b>": "Which episode<br>was I on<b>?</b>","Найди аниме и вспомни серию по кадрам, опенингам, скриншоту или своими словами. Узнаешь, откуда продолжать.": "Find an anime and recall your episode from stills, openings, a screenshot or your own words. You will know where to pick up.","Название аниме или ссылка": "Anime title or link","Название или ссылка: Наруто, jut.su/naruuto…": "Title or link: Naruto, myanimelist.net/anime/20…","Незаконченный поиск": "Unfinished search","Продолжить": "Continue","Сбросить": "Discard","По скриншоту": "By screenshot","По истории браузера": "From browser history","Импорт с Shikimori или AniList": "Import from Shikimori or AniList","Вставить ссылку": "Paste a link","Популярное": "Popular","Все {n}": "All {n}","Недавно открывал": "Recently opened","Ищу…": "Searching…","Ссылка с {host}": "Link from {host}","{s}-й сезон, ": "season {s}, ","Точных совпадений нет. Возможно, ты искал:": "No exact matches. Did you mean:","Shikimori не отвечает, ищу через AniList.": "Shikimori is not responding, searching AniList instead.","По ссылке не получилось понять, что за тайтл. Вставь название.": "Couldn't tell the anime from this link. Try typing its title.","Ничего не нашлось. Попробуй другое написание: по-английски, ромадзи или по-японски.": "Nothing found. Try another spelling: English, romaji or Japanese.","Сервисы поиска не отвечают. Проверь интернет и попробуй ещё раз.": "Search services are not responding. Check your connection and try again.","Вставь ссылку в поле поиска: Ctrl+V": "Paste the link into the search box: Ctrl+V","Перенос": "Transfer","С Shikimori": "From Shikimori","Файл": "Export","Из файла": "Import file","Перенос на другое устройство": "Move to another device","Список живёт в памяти этого браузера. Чтобы открыть его на телефоне или другом компьютере, создай код, отправь его себе (например, в «Избранное» Telegram) и вставь там: «Мои тайтлы», затем «Перенос».": "Your list lives in this browser. To open it on a phone or another computer, create a code, send it to yourself (for example, in Telegram Saved Messages) and paste it there: “My anime”, then “Transfer”.","Создать код": "Create code","Скопировать": "Copy","Есть код с другого устройства?": "Have a code from another device?","Вставь код сюда": "Paste the code here","Добавить из кода": "Add from code","Пока пусто. Найди аниме на главной: после поиска серии тайтл сохранится здесь. Или <a href=\"#/import\">импортируй список</a> с Shikimori или AniList.": "Nothing here yet. Find an anime on the home page: after the search it will be saved here. Or <a href=\"#/import\">import your list</a> from Shikimori or AniList.","Найти аниме": "Find an anime","Код скопирован": "Code copied","Выдели код и скопируй вручную": "Select the code and copy it manually","Добавлено: {n}": "Added: {n}","Код не подошёл. Скопируй его целиком": "That code didn't work. Copy it in full","Импортировано: {n}": "Imported: {n}","Файл не подошёл": "That file didn't work","Добавляю список…": "Adding your list…","Добавлено из кода: {n}": "Added from code: {n}","Код переноса повреждён или неполный.": "The transfer code is damaged or incomplete.","Смотрю": "Watching","Пересматриваю": "Rewatching","Отложено": "On hold","Брошено": "Dropped","Просмотрено": "Completed","В планах": "Planned","Импорт списка": "Import your list","Если ты отмечал аниме на Shikimori или AniList, там уже записано, на какой серии ты остановился. Нужен только ник, профиль должен быть открытым.": "If you tracked anime on Shikimori or AniList, they already know which episode you stopped at. All it takes is your username; the profile has to be public.","Ник": "Username","Ник или ссылка на профиль": "Username or profile link","Загрузить": "Load","Добавить в Мои тайтлы: {n}": "Add to My anime: {n}","Найдено: {n}. Отмечены те, что ты не досмотрел.": "Found: {n}. The ones you didn't finish are selected.","Недосмотренные": "Unfinished","Все": "All","Ничего": "None","{a} из {b}": "{a} of {b}","не начато": "not started","Загружаю список": "Loading the list","Список пуст.": "The list is empty.","Такого профиля нет или он закрыт. Проверь ник и настройки приватности.": "This profile doesn't exist or is private. Check the username and privacy settings.","Сервис не ответил. Попробуй ещё раз.": "The service didn't respond. Try again.","Поиск по истории браузера": "Browser history search","Найти по истории браузера": "Find it in your browser history","Браузер помнит, какие серии ты открывал. Сайт не может прочитать историю сам, но её можно скопировать сюда. Всё обрабатывается только у тебя в браузере.": "Your browser remembers which episodes you opened. The site can't read your history by itself, but you can copy it here. Everything is processed only in your browser.","Открой историю: <kbd>Ctrl</kbd> + <kbd>H</kbd> или адрес <span class=\"mono\">chrome://history</span>": "Open your history: <kbd>Ctrl</kbd> + <kbd>H</kbd> or the address <span class=\"mono\">chrome://history</span>","В поиске по истории введи название аниме или сайта, где смотрел": "Search the history for the anime title or the site you watched on","Нажми <kbd>Ctrl</kbd> + <kbd>A</kbd>, затем <kbd>Ctrl</kbd> + <kbd>C</kbd>": "Press <kbd>Ctrl</kbd> + <kbd>A</kbd>, then <kbd>Ctrl</kbd> + <kbd>C</kbd>","Вставь сюда и нажми «Найти серии»": "Paste it here and press “Find episodes”","История или список ссылок": "History or a list of links","Например: Наруто 2 сезон 37 серия смотреть онлайн | jut.su": "For example: Naruto Episode 37 English Subbed","Файл из Google Takeout": "Google Takeout file","Найти серии": "Find episodes","Серий в тексте не нашлось. Нужны строки, где есть название и номер серии, например «Наруто 37 серия».": "No episodes found in the text. Lines need a title and an episode number, like “Naruto episode 37”.","Последняя в истории: {what}": "Latest in history: {what}","Найти тайтл": "Find the anime","Не нашёл. Попробуй ввести название на главной.": "Not found. Try typing the title on the home page.","Поиск по скриншоту": "Screenshot search","Найти по скриншоту": "Find it by screenshot","Есть кадр или скриншот из серии? Сервис trace.moe узнает аниме, номер серии и даже минуту. Бесплатно, до 100 поисков в месяц.": "Have a frame or screenshot from an episode? trace.moe recognizes the anime, the episode number and even the minute. Free, up to 100 searches a month.","Перетащи картинку сюда": "Drop an image here","или нажми, чтобы выбрать файл. Можно вставить из буфера: Ctrl+V": "or click to choose a file. You can also paste from the clipboard: Ctrl+V","Ссылка на картинку": "Image link","Или вставь ссылку на картинку": "Or paste an image link","Найти": "Find","Ищу этот кадр среди миллионов": "Looking for this frame among millions","Не узнал этот кадр. Попробуй скриншот без рамок и надписей, прямо из видео.": "Couldn't recognize this frame. Try a clean screenshot straight from the video, without borders or captions.","совпадение {p}%": "{p}% match","может быть не то": "might be wrong","момент {time}": "at {time}","Открыть тайтл": "Open the anime","Осталось поисков в этом месяце: {n}": "Searches left this month: {n}","Лимит бесплатных поисков на этот месяц закончился.": "The free search limit for this month is used up.","Сервис trace.moe не ответил. Попробуй ещё раз.": "trace.moe didn't respond. Try again.","Не получилось скачать картинку по ссылке. Проверь ссылку или загрузи файл.": "Couldn't download the image from that link. Check the link or upload the file.","Не удалось загрузить тайтл ни с Shikimori, ни с AniList.": "Couldn't load this anime from Shikimori or AniList.","Из ссылки": "From the link","Из истории": "From history","Со скриншота": "From the screenshot","Подсказка": "Hint","этот": "this one","онгоинг": "airing","Читать полностью": "Read more","В твоём списке: {what}": "In your list: {what}","ещё не начато": "not started yet","последняя просмотренная: {ep}": "last watched: {ep}","Shikimori сейчас не отвечает, данные взяты с AniList.": "Shikimori is not responding right now, data comes from AniList.","Что проверяем": "What to check","Чем больше сезонов выбрано, тем точнее поиск по всей истории. Лишние вопросы почти не добавляются.": "The more seasons you include, the better the search covers the whole story. It barely adds questions.","Весь сюжет": "Whole story","Только этот": "Just this one","Свой выбор": "Custom","Ещё из франшизы: спешлы, OVA, фильмы ({n})": "More from the franchise: specials, OVAs, movies ({n})","Если примерно помнишь, сузь поиск: смотрел точно до": "If you roughly remember, narrow it down: I definitely watched up to","Точно смотрел до серии": "Definitely watched up to episode","и точно не дальше": "and definitely not past","все": "all","Точно не смотрел после серии": "Definitely didn't watch past episode","серии": "","Смотрел, пока выходило, и бросил примерно в": "I watched as it aired and dropped it around","Год": "Year","не помню": "don't remember","Переводить на русский": "Translate into Russian","Названия и описания серий есть только на английском": "Episode titles and summaries exist only in English","Прятать описания": "Hide summaries","Чтобы не наткнуться на спойлер из серии, которую ты не видел": "So you don't run into spoilers from episodes you haven't seen","Как вспоминаем": "How to remember","Свернуть": "Show less","Начать заново": "Start over","Начать": "Start","Серий пока не вышло": "No episodes have aired yet","Выбери хотя бы одну часть": "Pick at least one part","{eps} в {n} {parts}": "{eps} in {n} {parts}","примерно {what}": "about {what}","{src}: {what}. Это {ep}, поэтому поиск начнётся после неё. Если смотрел меньше, поправь число ниже.": "{src}: {what}. That's {ep}, so the search starts after it. If you watched less, fix the number below.","≈ к тому времени вышло {eps}": "≈ {eps} had aired by then","к тому времени вышло всё": "everything had aired by then","Что последнее помнишь из сюжета?": "What's the last thing you remember from the story?","Например: Эрен впервые превратился в титана и заткнул дыру в стене огромным камнем": "For example: Eren turned into a titan and plugged the hole in the wall with a huge boulder","Лучше всего работают имена героев, места и конкретные события. Можно писать на любом языке.": "Character names, places and specific events work best. Any language is fine.","Умный ИИ-поиск": "Smart AI search","Понимает смысл, а не только совпадение слов. Модель около 25 МБ скачается один раз и работает прямо в браузере, бесплатно": "Understands meaning, not just matching words. The model (about 25 MB) downloads once and runs right in your browser, for free","Найти серию": "Find the episode","Опиши хотя бы пару слов": "Describe it in at least a few words","Не получилось: {why}. Попробуй ещё раз.": "That didn't work: {why}. Try again.","нет связи": "no connection","Похожих серий не нашлось. Попробуй описать по-другому: имена героев, место, главное событие.": "No similar episodes found. Try describing it differently: character names, place, the main event.","возможно": "maybe","похоже": "likely","очень похоже": "very likely","Серия {n}": "Episode {n}","Описание скрыто от спойлеров. Нажми, чтобы показать": "Summary hidden to avoid spoilers. Tap to show","Описания этой серии нет, совпало название.": "No summary for this episode; the title matched.","Это последнее, что помню": "That's the last I remember","Сразу к итогу": "Go to the result","ИИ-модель не загрузилась, искал по словам.": "The AI model didn't load, so the search used words only.","Уверенных совпадений нет. Добавь подробностей: имена героев, место, кто с кем сражался. Ниже самые близкие варианты.": "No confident matches. Add details: character names, the place, who fought whom. The closest options are below.","Ещё варианты": "More options","Искал по смыслу с помощью ИИ и по совпадению слов.": "Searched by meaning with AI and by matching words.","Искал по совпадению слов.": "Searched by matching words.","После выбора пара вопросов проверит, не смотрел ли ты дальше.": "After you pick, a couple of questions will check whether you watched further.","Выбери хотя бы одну часть.": "Pick at least one part.","Для этих частей опенингов в базе AnimeThemes нет. Попробуй кадры или описание словами.": "AnimeThemes has no openings for these parts. Try stills or describing it in words.","Слушать {slug}": "Play {slug}","Без названия": "Untitled","серии {eps}": "episodes {eps}","серии неизвестны": "episodes unknown","Последний, что помню": "Last one I remember","<b>Последний, что помнишь:</b> {slug} «{song}», {ep}.": "<b>Last one you remember:</b> {slug} “{song}”, {ep}.","Следующая песня по порядку: {slug} «{song}», начинается с {ep}. Её ты уже не слышал?": "The next song is {slug} “{song}”, starting at {ep}. You never heard that one?","Не слышал": "Never heard it","Слышал, она последняя": "Heard it, that's the last one","Не уверен, мог пропускать": "Not sure, I may have skipped","Дальше: уточнить по кадрам": "Next: narrow it down with stills","Вспоминаем: {title}": "Remembering: {title}","К тайтлу": "Back to the anime","Перевод": "Translation","Скрытие описаний": "Hide summaries","Перейти к одному кадру": "Switch to one still","Перейти к сетке кадров": "Switch to the stills grid","Перевод включён": "Translation on","Перевод выключен": "Translation off","Описания скрыты": "Summaries hidden","Описания видны": "Summaries shown","Сетка кадров": "Stills grid","По одному кадру": "One still at a time","Кадра из этой серии нет": "No still for this episode","вопрос {n}, осталось ~{left}": "question {n}, ~{left} left","Помню": "Remember","Не помню": "Don't remember","Фильм": "Movie","из {n}": "of {n}","Не уверен, покажи соседнюю": "Not sure, show a neighbor","Назад": "Back","Хватит, покажи итог": "Enough, show the result","Показать оригинал": "Show original","Описания этой серии нет. Ориентируйся на кадр или нажми «Не уверен».": "No summary for this episode. Go by the still or press “Not sure”.","Вышла {date}": "Aired {date}","Показать перевод": "Show translation","шаг {n}, осталось ~{left}": "step {n}, ~{left} left","Выбери <b>самый поздний</b> кадр, который помнишь": "Pick the <b>latest</b> still you remember","Не помню ни один": "Don't remember any","Итог: {title}": "Result: {title}","Начни с <b>первой серии</b>": "Start from <b>episode 1</b>","Похоже, ты не помнишь даже начало. Так даже лучше: посмотришь всё заново.": "Looks like you don't remember even the beginning. Even better: you get to watch it all fresh.","Ты всё <b>досмотрел</b>": "You <b>finished</b> it","Новых серий пока нет. Загляни позже: онгоинг продолжается.": "No new episodes yet. Check back later: it's still airing.","Похоже, история пройдена до конца.": "Looks like you've seen the whole story.","Ты остановился на <b>фильме</b>": "You stopped at <b>the movie</b>","Ты остановился на <b>{n}-й серии</b>": "You stopped at <b>episode {n}</b>","Дальше: {what}.": "Next: {what}.","Продолжай с <b>фильма</b>": "Continue with <b>the movie</b>","Продолжай с <b>{n}-й серии</b>": "Continue from <b>episode {n}</b>","Точнее определить не вышло: ты не помнишь {b}.": "Couldn't pin it down exactly: you don't remember {b}.","Точнее определить не вышло: ты помнишь {a}, а дальше мы не проверяли.": "Couldn't pin it down exactly: you remember {a}, and we didn't check anything later.","Точнее определить не вышло: ты помнишь {a}, но не помнишь {b}.": "Couldn't pin it down exactly: you remember {a} but not {b}.","Начни отсюда, в худшем случае пересмотришь пару знакомых серий.": "Start here; at worst you'll rewatch a couple of familiar episodes.","Осталось {eps}, это примерно {time}.": "{eps} left, about {time}.","по описанию": "by description","по опенингам": "by openings"," и ": " and ","Смотреть дальше": "Watch next","Последняя, которую помнишь": "Last one you remember","{n} серия": "episode {n}","смотреть": "watch","Напомнить, что было": "Recap what happened","Где смотреть": "Where to watch","Пройти заново": "Start over","Сохранено в <a href=\"#/library\">Мои тайтлы</a>. Отмечай там просмотренные серии, и больше не придётся вспоминать.": "Saved to <a href=\"#/library\">My anime</a>. Mark watched episodes there and you won't have to remember again.","{title}: остановился на {ep}.": "{title}: stopped at {ep}.","{title}: продолжать с {ep}.": "{title}: continue from {ep}.","Скопировано": "Copied","Что было в последних сериях": "What happened in the last episodes","Описания нет.": "No summary.","По кадрам": "By stills","Показываем кадр из серии, ты отвечаешь «помню» или «нет». Самый точный способ.": "You see a still from an episode and answer “remember” or “don't”. The most precise way.","Шесть кадров за раз, выбираешь самый поздний знакомый. На длинных тайтлах шагов в 2-3 раза меньше.": "Six stills at a time; you pick the latest one you recognize. Two to three times fewer steps on long shows.","Опишу словами": "Describe it","Напиши, что помнишь последним. Сайт сравнит это с подробными пересказами всех серий, а ИИ в браузере поймёт смысл, даже если слова другие.": "Write the last thing you remember. The site compares it with detailed summaries of every episode, and the in-browser AI gets the meaning even if the words differ.","По опенингам": "By openings","Музыка хорошо будит память. Послушай опенинги и эндинги по порядку и выбери последний, который помнишь.": "Music is a great memory trigger. Play the openings and endings in order and pick the last one you remember.","Выбери скриншот": "Choose a screenshot","Нажми, чтобы выбрать фото из галереи": "Tap to pick a photo from your gallery"};
+const LANGS = { ru: 'RU', en: 'EN' };
+// Main OS/browser language decides on first visit; Russian also for uk/be/kk speakers.
+const detectLang = () => /^(ru|uk|be|kk)\b/.test((navigator.languages?.[0] || navigator.language || 'en').toLowerCase()) ? 'ru' : 'en';
+let lang = LANGS[store.get('lang')] ? store.get('lang') : detectLang();
+const missingT = new Set();
+function t(s, v) {
+  let r = s;
+  if (lang === 'en') { r = EN[s]; if (r == null) { missingT.add(s); r = s; } }
+  return v ? r.replace(/\{(\w+)\}/g, (_, k) => v[k] ?? '') : r;
+}
+const WORDS = {
+  ep: [['серия', 'серии', 'серий'], ['episode', 'episodes']], q: [['вопрос', 'вопроса', 'вопросов'], ['question', 'questions']],
+  step: [['шаг', 'шага', 'шагов'], ['step', 'steps']], part: [['части', 'частях', 'частях'], ['part', 'parts']],
+  rec: [['запись', 'записи', 'записей'], ['visit', 'visits']], fresh: [['новая серия', 'новые серии', 'новых серий'], ['new episode', 'new episodes']],
+};
+const pw = (n, k) => lang === 'ru' ? plural(n, ...WORDS[k][0]) : WORDS[k][1][n === 1 ? 0 : 1];
+const epsWord = n => `${n} ${pw(n, 'ep')}`;
+const qWord = n => `${n} ${pw(n, 'q')}`;
+const stepWord = n => `${n} ${pw(n, 'step')}`;
+const nm = x => !x ? '' : lang === 'ru' ? (x.ru || x.title || x.name || '') : (x.en || x.name || x.title || '');
+const KINDS = {
+  ru: { tv: 'TV', movie: 'Фильм', ova: 'OVA', ona: 'ONA', special: 'Спешл', tv_special: 'TV-спешл', music: 'Клип', pv: 'Промо', cm: 'Реклама' },
+  en: { tv: 'TV', movie: 'Movie', ova: 'OVA', ona: 'ONA', special: 'Special', tv_special: 'TV special', music: 'Music video', pv: 'Promo', cm: 'Ad' },
+};
+const STATUSES = { ru: { ongoing: 'Онгоинг', released: 'Вышло', anons: 'Анонс' }, en: { ongoing: 'Airing', released: 'Finished', anons: 'Announced' } };
+const kindName = k => KINDS[lang][k] || k || '';
+const statusName = s => STATUSES[lang][s] || '';
+const locale = () => lang === 'ru' ? 'ru-RU' : 'en-US';
+const fmtDate = (d, short) => d ? new Date(d).toLocaleDateString(locale(), short ? { day: 'numeric', month: 'short' } : { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+const SKIP_KINDS = new Set(['music', 'pv', 'cm']);
+
+let toastTimer;
+function toast(msg, action) {
+  const el = $('#toast');
+  el.innerHTML = `<span>${esc(msg)}</span>` + (action ? `<button>${esc(action.label)}</button>` : '');
+  if (action) el.querySelector('button').onclick = () => { action.run(); el.classList.remove('on'); };
+  el.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('on'), action ? 6000 : 2600);
+}
+
+async function getJSON(url, opt = {}, tries = 2) {
+  for (let i = 0; ; i++) {
+    try {
+      const r = await fetch(url, { ...opt, signal: opt.signal || AbortSignal.timeout?.(25000) });
+      if (r.status === 429 && i < tries) { await sleep(900 * (i + 1)); continue; }
+      if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+      return await r.json();
+    } catch (e) {
+      if (e.name === 'AbortError' || e.name === 'TimeoutError' || (e.status >= 400 && e.status < 500) || i >= tries) throw e;
+      await sleep(500 * (i + 1));
+    }
+  }
+}
+const memo = new Map();
+const once = (key, fn) => { if (!memo.has(key)) memo.set(key, fn().catch(e => { memo.delete(key); throw e; })); return memo.get(key); };
+async function pool(items, n, fn) {
+  const out = new Array(items.length); let i = 0;
+  await Promise.all(Array.from({ length: Math.min(n, items.length) }, async () => { while (i < items.length) { const k = i++; out[k] = await fn(items[k], k); } }));
+  return out;
+}
+function parseHash() {
+  const [path, qs] = location.hash.replace(/^#\/?/, '').split('?');
+  return { parts: path.split('/'), q: new URLSearchParams(qs || '') };
+}
+// index of the item whose date is closest to `date`, if within `days`
+function closestByDate(list, date, f, days) {
+  const d0 = Date.parse(date); if (Number.isNaN(d0)) return -1;
+  let best = -1, bd = Infinity;
+  list.forEach((x, i) => { const d = Date.parse(f(x)); if (!Number.isNaN(d) && Math.abs(d - d0) < bd) { bd = Math.abs(d - d0); best = i; } });
+  return bd <= days * 864e5 ? best : -1;
+}
+
+/* ---------- data: Shikimori (primary) ---------- */
+const SHIKI = 'https://shikimori.io';
+const gql = (query, signal) => getJSON(SHIKI + '/api/graphql', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query }), signal })
+  .then(r => { if (r.errors) throw new Error(r.errors[0].message); return r.data; });
+const ENTRY_FIELDS = 'id russian name english kind status episodes episodesAired duration nextEpisodeAt airedOn{year date} poster{mainUrl}';
+
+function toEntry(a) {
+  const count = a.status === 'ongoing' ? a.episodesAired : (a.episodes || a.episodesAired);
+  return { id: +a.id, title: a.russian || a.name, ru: a.russian || '', en: a.english || '', name: a.name, english: a.english, kind: a.kind, status: a.status,
+    count: a.kind === 'movie' ? 1 : count || 0, year: a.airedOn?.year, date: a.airedOn?.date || '', poster: a.poster?.mainUrl || '', duration: a.duration || 24, next: a.nextEpisodeAt || '' };
+}
+
+/* ---------- data: AniList (backup when Shikimori is down) ---------- */
+const alq = (query, variables, signal) => getJSON('https://graphql.anilist.co', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, variables }), signal })
+  .then(r => { if (r.errors && !r.data) throw new Error(r.errors[0].message); return r.data; });
+const AL_FIELDS = 'idMal format status episodes duration nextAiringEpisode{episode airingAt} startDate{year month day} title{romaji english native} synonyms coverImage{large}';
+const AL_KIND = { TV: 'tv', TV_SHORT: 'tv', MOVIE: 'movie', OVA: 'ova', ONA: 'ona', SPECIAL: 'special', MUSIC: 'music' };
+function alEntry(m) {
+  // Cyrillic synonyms mix Russian and Ukrainian: skip і/ї/є/ґ, prefer ы/э/ё/ъ
+  const cyr = (m.synonyms || []).filter(s => /[а-яё]/i.test(s) && !/[іїєґ]/i.test(s));
+  const ru = cyr.find(s => /[ыэёъ]/i.test(s)) || cyr[0] || '';
+  const ongoing = m.status === 'RELEASING';
+  const d = m.startDate || {};
+  const count = m.format === 'MOVIE' ? 1 : ongoing ? Math.max(0, (m.nextAiringEpisode?.episode || 1) - 1) : (m.episodes || 0);
+  return { id: m.idMal, title: ru || m.title.english || m.title.romaji, ru, en: m.title.english || '', name: m.title.romaji, english: m.title.english, kind: AL_KIND[m.format] || 'tv',
+    status: ongoing ? 'ongoing' : m.status === 'NOT_YET_RELEASED' ? 'anons' : 'released', count, year: d.year,
+    date: d.year ? `${d.year}-${String(d.month || 1).padStart(2, '0')}-${String(d.day || 1).padStart(2, '0')}` : '', poster: m.coverImage?.large || '',
+    duration: m.duration || 24, next: m.nextAiringEpisode?.airingAt ? new Date(m.nextAiringEpisode.airingAt * 1000).toISOString() : '' };
+}
+async function anilistSearch(q, signal) {
+  const d = await alq(`query($q:String){Page(perPage:8){media(search:$q,type:ANIME,sort:SEARCH_MATCH){${AL_FIELDS}}}}`, { q }, signal);
+  return d.Page.media.filter(m => m.idMal && m.format !== 'MUSIC').map(alEntry);
+}
+async function anilistAnime(id) {
+  const Q = `query($id:Int){Media(idMal:$id,type:ANIME){${AL_FIELDS} description(asHtml:false) genres averageScore relations{edges{relationType node{${AL_FIELDS} type}}}}}`;
+  const get = mal => once('al:' + mal, () => alq(Q, { id: mal }).then(d => d.Media));
+  const self = await get(id);
+  if (!self) throw new Error('not found');
+  // rebuild the story line by walking prequels/sequels; ponytail: capped at 12 hops each way
+  const MAIN = ['TV', 'TV_SHORT', 'ONA', 'MOVIE'];
+  const step = (m, rel) => m.relations.edges.find(e => e.relationType === rel && e.node.type === 'ANIME' && e.node.idMal && MAIN.includes(e.node.format))?.node;
+  const back = [], fwd = [];
+  for (let cur = self, i = 0; i < 12; i++) { const p = step(cur, 'PREQUEL'); if (!p || back.some(x => x.idMal === p.idMal)) break; cur = await get(p.idMal); back.unshift(cur); }
+  for (let cur = self, i = 0; i < 12; i++) { const n = step(cur, 'SEQUEL'); if (!n || fwd.some(x => x.idMal === n.idMal)) break; cur = await get(n.idMal); fwd.push(cur); }
+  const s = alEntry(self);
+  const main = [...back, self, ...fwd].map(alEntry).filter(e => e.count > 0).sort(byDate);
+  const inMain = new Set(main.map(e => e.id));
+  const other = self.relations.edges.filter(e => e.node.type === 'ANIME' && e.node.idMal && !inMain.has(e.node.idMal) && e.node.format !== 'MUSIC')
+    .map(e => alEntry(e.node)).filter(e => e.count > 0).sort(byDate);
+  const desc = stripTags(self.description).replace(/\n{3,}/g, '\n\n');
+  return { ...s, japanese: self.title.native, score: self.averageScore ? (self.averageScore / 10).toFixed(1) : null, url: `${SHIKI}/animes/${id}`,
+    descRu: '', descEn: desc, genresRu: [], genresEn: self.genres || [], main: main.length ? main : [s].filter(e => e.count > 0), other, backup: true };
+}
+
+/* ---------- search ---------- */
+const searchCache = new Map();
+async function searchAnime(q, signal) {
+  const key = q.toLowerCase().trim();
+  if (searchCache.has(key)) return searchCache.get(key);
+  let res;
+  try {
+    const d = await gql(`{animes(search:${JSON.stringify(q)},limit:8,kind:"!music,!cm,!pv"){${ENTRY_FIELDS} score}}`, signal);
+    res = d.animes.map(a => ({ ...toEntry(a), score: a.score }));
+  } catch (e) {
+    if (e.name === 'AbortError') throw e;
+    res = await anilistSearch(q, signal);
+    res.backup = true;
+  }
+  searchCache.set(key, res);
+  return res;
+}
+async function animesByIds(ids) {
+  const out = [];
+  for (const chunk of chunks(ids, 50)) {
+    try { out.push(...(await gql(`{animes(ids:"${chunk.join(',')}",limit:50){${ENTRY_FIELDS}}}`)).animes.map(toEntry)); }
+    catch { out.push(...(await alq(`query($ids:[Int]){Page(perPage:50){media(idMal_in:$ids,type:ANIME){${AL_FIELDS}}}}`, { ids: chunk })).Page.media.map(alEntry)); }
+  }
+  return out;
+}
+// Typo fallbacks, cheapest first: "Ванпис" -> "Ван пис" (split a glued word), then drop trailing letters.
+function typoVariants(v) {
+  const tries = [];
+  if (!/\s/.test(v) && v.length >= 5) for (let d = 0; d <= v.length; d++) for (const i of [Math.floor(v.length / 2) + d, Math.floor(v.length / 2) - d]) {
+    const x = v.slice(0, i) + ' ' + v.slice(i);
+    if (i >= 2 && i <= v.length - 2 && !tries.includes(x)) tries.push(x);
+  }
+  for (let cut = v; cut.length > 4;) tries.push(cut = cut.slice(0, -1).trim());
+  return tries;
+}
+async function smartSearch(queries, signal) {
+  for (const q of queries) { const r = await searchAnime(q, signal); if (r.length) return { items: r, fuzzy: false }; }
+  let n = 0;
+  for (const q of queries) for (const x of typoVariants(q)) {
+    if (n++ >= 6) return { items: [], fuzzy: false };
+    const r = await searchAnime(x, signal);
+    if (r.length) return { items: r, fuzzy: true };
+  }
+  return { items: [], fuzzy: false };
+}
+
+/* ---------- links and page titles: shikimori, MAL, AniList, Kitsu, any anime site ---------- */
+const LINK_STOP = new Set('anime animes watch online smotret onlayn onlain serial series season sezon episode episodes seriya seria catalog item items release releases title titles video videos tv ru en www html php page manga tip play player view details info category tags search'.split(' '));
+function epFrom(s) {
+  const m = s.match(/(?:episode|seriya|seriia|seria|серия|эпизод)[-_\s=#:№]*(\d{1,4})(?!\d)/i)
+    || s.match(/(\d{1,4})[-_\s]*(?:-?(?:я|й)\s*)?(?:seriya|seria|серия|серии|эпизод|episode)/i)
+    || s.match(/(?:^|[^a-z])(?:ep|e)[-_]?(\d{1,4})(?!\d)/i);
+  return m ? +m[1] : null;
+}
+function seasonFrom(s) {
+  // "2 сезон 37 серия": the number before the word wins, otherwise "сезон 37" would grab the episode
+  const m = s.match(/(\d{1,2})[-_\s]*(?:-?й\s*)?(?:season|sezon|сезон)/i) || s.match(/(?:season|sezon|сезон)[-_\s=#:№]*(\d{1,2})(?!\d)/i) || s.match(/(?:^|[^a-z])s(\d{1,2})e\d/i);
+  return m ? +m[1] : null;
+}
+const dedouble = s => s.replace(/([aeiou])\1/gi, '$1');
+function lat2cyr(s) {
+  if (!/^[a-z\s'-]+$/i.test(s)) return '';
+  const pairs = [['shch', 'щ'], ['sch', 'щ'], ['yo', 'ё'], ['yu', 'ю'], ['ya', 'я'], ['ye', 'е'], ['zh', 'ж'], ['kh', 'х'], ['ts', 'ц'], ['ch', 'ч'], ['sh', 'ш'], ['iy', 'ий'], ['yy', 'ый'], ['ey', 'ей'], ['ay', 'ай'], ['oy', 'ой']];
+  const one = { a: 'а', b: 'б', v: 'в', g: 'г', d: 'д', e: 'е', z: 'з', i: 'и', j: 'й', y: 'ы', k: 'к', l: 'л', m: 'м', n: 'н', o: 'о', p: 'п', r: 'р', s: 'с', t: 'т', u: 'у', f: 'ф', h: 'х', c: 'ц', w: 'в', x: 'кс', q: 'к', "'": 'ь' };
+  const w = s.toLowerCase(); let out = '';
+  for (let i = 0; i < w.length;) { const p = pairs.find(([l]) => w.startsWith(l, i)); if (p) { out += p[1]; i += p[0].length; } else { out += one[w[i]] ?? w[i]; i++; } }
+  return out;
+}
+function slugTitle(path) {
+  const clean = x => x.replace(/^\d+[-_]/, '').replace(/[-_]\d+$/, '').split(/[-_+.]+/).filter(w => w && !LINK_STOP.has(w.toLowerCase()) && !/^\d+$/.test(w)).join(' ');
+  return path.split('/').map(x => x.replace(/\.(html?|php|aspx?)$/i, '')).filter(Boolean)
+    .filter(x => !/^(season|sezon|episode|seriya|seria|ep|e|s)[-_]?\d+$/i.test(x) && /[a-zа-яё]{3}/i.test(x) && !/^[A-Z0-9]{6,}$/.test(x))
+    .map(clean).filter(Boolean).sort((a, b) => b.split(' ').length - a.split(' ').length || b.length - a.length)[0] || '';
+}
+function parseLink(text) {
+  const s = text.trim();
+  if (/\s/.test(s) || !/^(https?:\/\/)?[\w-]+(\.[\w-]+)+([/?#]|$)/i.test(s)) return null;
+  let u; try { u = new URL(/^https?:/i.test(s) ? s : 'https://' + s); } catch { return null; }
+  const host = u.hostname.replace(/^www\./, ''), path = decodeURIComponent(u.pathname), tail = path + ' ' + decodeURIComponent(u.search);
+  const info = { host, ep: epFrom(tail), season: seasonFrom(tail) };
+  let m;
+  if (/(^|\.)shikimori\./.test(host) && (m = path.match(/\/animes\/[a-z]*(\d+)/))) return { ...info, mal: +m[1] };
+  if (/myanimelist\.net$/.test(host) && (m = path.match(/\/anime\/(\d+)/))) return { ...info, mal: +m[1] };
+  if (/anilist\.co$/.test(host) && (m = path.match(/\/anime\/(\d+)/))) return { ...info, anilist: +m[1] };
+  if (/kitsu\.(io|app)$/.test(host) && (m = path.match(/\/anime\/([^/]+)/))) return { ...info, kitsu: m[1] };
+  const title = slugTitle(path);
+  return title ? { ...info, title } : null;
+}
+async function resolveLink(L, signal) {
+  if (L.mal) return animesByIds([L.mal]);
+  if (L.anilist) { const d = await alq('query($id:Int){Media(id:$id,type:ANIME){idMal}}', { id: L.anilist }, signal); return d.Media?.idMal ? animesByIds([d.Media.idMal]) : []; }
+  if (L.kitsu) {
+    const f = /^\d+$/.test(L.kitsu) ? `filter[id]=${L.kitsu}` : `filter[slug]=${encodeURIComponent(L.kitsu)}`;
+    const r = await getJSON(`https://kitsu.io/api/edge/anime?${f}&include=mappings&fields[anime]=id`, { signal });
+    const mp = (r.included || []).find(x => x.attributes?.externalSite === 'myanimelist/anime');
+    return mp ? animesByIds([+mp.attributes.externalId]) : [];
+  }
+  return searchByTitle(L.title, signal);
+}
+// Guessed titles (URL slugs, history lines) are noisy, so rank candidates from every spelling variant
+// by how close their names are to what we guessed, instead of trusting the first non-empty search.
+const normTitle = s => s.toLowerCase().replace(/ё/g, 'е').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+const bigrams = s => { const x = ` ${normTitle(s)} `, m = new Map(); for (let i = 0; i < x.length - 1; i++) { const b = x.slice(i, i + 2); m.set(b, (m.get(b) || 0) + 1); } return m; };
+function sim(a, b) {
+  const A = bigrams(a), B = bigrams(b); let inter = 0, n = 0;
+  for (const [k, v] of A) { n += v; inter += Math.min(v, B.get(k) || 0); }
+  for (const v of B.values()) n += v;
+  return n ? 2 * inter / n : 0;
+}
+const titleSim = (q, x) => Math.max(0, ...[x.title, x.name, x.english].filter(Boolean).flatMap(s => [sim(q, s), sim(q, s.split(/[:.(]/)[0])]));
+async function searchByTitle(raw, signal) {
+  const qs = [raw, dedouble(raw), lat2cyr(raw)].filter((x, i, a) => x && a.indexOf(x) === i);
+  const found = new Map();
+  const consider = list => list.forEach(x => { const s = Math.max(...qs.map(q => titleSim(q, x))); if (!found.has(x.id) || found.get(x.id).s < s) found.set(x.id, { x, s }); });
+  for (const q of qs) consider(await searchAnime(q, signal));
+  const best = () => Math.max(0, ...[...found.values()].map(v => v.s));
+  for (const q of qs) for (const x of typoVariants(q).slice(0, 3)) { if (best() >= .6) break; consider(await searchAnime(x, signal)); }
+  return [...found.values()].filter(v => v.s >= .3).sort((a, b) => b.s - a.s).map(v => v.x).slice(0, 8);
+}
+
+/* ---------- title + franchise ---------- */
+const popular = () => once('popular', async () => {
+  try {
+    const d = await gql(`{animes(order:popularity,limit:30,kind:"tv,ona"){${ENTRY_FIELDS} franchise}}`);
+    const seen = new Set();
+    return d.animes.filter(a => { const f = a.franchise || a.id; if (seen.has(f)) return false; seen.add(f); return true; }).map(toEntry).slice(0, 16);
+  } catch {
+    const d = await alq(`{Page(perPage:16){media(type:ANIME,sort:POPULARITY_DESC,format_in:[TV]){${AL_FIELDS}}}}`);
+    return d.Page.media.filter(m => m.idMal).map(alEntry);
+  }
+});
+
+function loadAnime(id) {
+  return once('anime:' + id, async () => {
+    let d, fr;
+    try {
+      [d, fr] = await Promise.all([
+        gql(`{animes(ids:"${+id}",limit:1){${ENTRY_FIELDS} japanese score url description genres{russian name} chronology{${ENTRY_FIELDS}}}}`),
+        getJSON(`${SHIKI}/api/animes/${+id}/franchise`).catch(() => ({ links: [] })),
+      ]);
+    } catch { return anilistAnime(id); }
+    const a = d.animes[0];
+    if (!a) return anilistAnime(id);
+    const self = toEntry(a);
+    const chron = (a.chronology?.length ? a.chronology : [a]).map(toEntry).filter(e => !SKIP_KINDS.has(e.kind) && e.count > 0);
+    if (!chron.some(e => e.id === self.id) && self.count > 0) chron.push(self);
+    const chain = mainChain(self.id, fr.links || []);
+    const inChain = new Set(chain);
+    const main = chron.filter(e => inChain.has(e.id)).sort(byDate);
+    const other = chron.filter(e => !inChain.has(e.id)).sort(byDate);
+    return { ...self, japanese: a.japanese, score: a.score, url: a.url, descRu: stripBB(a.description), descEn: '',
+      genresRu: (a.genres || []).map(g => g.russian), genresEn: (a.genres || []).map(g => g.name), main: main.length ? main : [self].filter(e => e.count > 0), other };
+  });
+}
+
+// Story line: walk prequels back to the root, then follow sequels forward.
+// Shikimori links read "target is <relation> of source".
+function mainChain(id, links) {
+  const next = new Map(), prev = new Map();
+  for (const l of links) {
+    if (l.relation === 'sequel') { if (!next.has(l.source_id)) next.set(l.source_id, l.target_id); if (!prev.has(l.target_id)) prev.set(l.target_id, l.source_id); }
+    if (l.relation === 'prequel') { if (!prev.has(l.source_id)) prev.set(l.source_id, l.target_id); if (!next.has(l.target_id)) next.set(l.target_id, l.source_id); }
+  }
+  let root = id; const seen = new Set([id]);
+  while (prev.has(root) && !seen.has(prev.get(root))) { root = prev.get(root); seen.add(root); }
+  const chain = [root]; const used = new Set([root]);
+  for (let c = root; next.has(c) && !used.has(next.get(c));) { c = next.get(c); chain.push(c); used.add(c); }
+  return chain.includes(id) ? chain : [id];
+}
+
+/* ---------- episodes: Kitsu (stills, titles, short synopses) ---------- */
+const kitsuIds = store.get('kitsu', {});
+async function kitsuId(mal) {
+  if (mal in kitsuIds) return kitsuIds[mal];
+  const r = await once('km:' + mal, () => getJSON(`https://kitsu.io/api/edge/mappings?filter[externalSite]=myanimelist/anime&filter[externalId]=${mal}&include=item&fields[anime]=id`));
+  kitsuIds[mal] = r.included?.[0]?.id || 0;
+  store.set('kitsu', kitsuIds);
+  return kitsuIds[mal];
+}
+const cleanSyn = s => (s || '').split('\n').filter(l => !/^\s*[\(\[](source|written by)/i.test(l)).join('\n').trim();
+const kitsuShape = a => { const x = a.titles || {}; return { title: a.canonicalTitle || x.en || x.en_us || x.en_jp || '', alt: x.ja_jp || x.en_jp || '', synopsis: cleanSyn(a.synopsis || a.description), thumb: a.thumbnail?.original || '', airdate: a.airdate || '' }; };
+async function kitsuEpisode(mal, n) {
+  const kid = await kitsuId(mal);
+  if (!kid) return null;
+  const base = `https://kitsu.io/api/edge/anime/${kid}/episodes`;
+  let a = (await getJSON(`${base}?filter[number]=${n}`)).data?.[0]?.attributes;
+  if (!a) a = (await getJSON(`${base}?sort=number&page[limit]=1&page[offset]=${n - 1}`)).data?.[0]?.attributes;
+  return a ? kitsuShape(a) : null;
+}
+async function kitsuAll(e, onPage) {
+  const kid = await kitsuId(e.id);
+  if (!kid) return [];
+  const pages = Math.min(60, Math.ceil(e.count / 20));
+  const res = await pool([...Array(pages).keys()], 4, async p => {
+    const r = await getJSON(`https://kitsu.io/api/edge/anime/${kid}/episodes?sort=number&page[limit]=20&page[offset]=${p * 20}&fields[episodes]=number,canonicalTitle,titles,synopsis,description,thumbnail,airdate`).catch(() => ({ data: [] }));
+    onPage?.(20);
+    return r.data.map(d => kitsuShape(d.attributes));
+  });
+  return res.flat();
+}
+
+/* ---------- episodes: TVmaze (stills + synopses; sequels mapped by air date) ---------- */
+// "One Punch Man 2nd Season" -> "One Punch Man": sequels usually live inside the first season's show/list
+function baseName(s) {
+  let x = (s || '').trim(), prev;
+  do {
+    prev = x;
+    x = x.replace(/\s*[:\-–]\s*(the\s+)?final\s+season.*$/i, '').replace(/\s*(part|cour)\s*\d+$/i, '').replace(/\s*\d+(st|nd|rd|th)\s+season$/i, '')
+      .replace(/\s*season\s*\d+$/i, '').replace(/\s+\d+$/, '').replace(/\s+(ii|iii|iv)$/i, '').trim();
+  } while (x !== prev);
+  return x;
+}
+function tvmazeEpisodes(entry) {
+  return once('tvm:' + entry.id, async () => {
+    const names = [...new Set([entry.english, entry.name, baseName(entry.english), baseName(entry.name)].filter(Boolean))].slice(0, 3);
+    for (const q of names) {
+      const res = await getJSON('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(q)).catch(() => []);
+      for (const s of res.map(r => r.show).filter(s => s.language === 'Japanese' || s.genres?.includes('Anime') || s.type === 'Animation').slice(0, 3)) {
+        const y = +s.premiered?.slice(0, 4);
+        if (entry.year && y && y > entry.year) continue;
+        const eps = (await once('tvme:' + s.id, () => getJSON(`https://api.tvmaze.com/shows/${s.id}/episodes`)).catch(() => [])).filter(e => e.number != null);
+        const i = entry.date ? closestByDate(eps, entry.date, e => e.airdate, 4) : (y === entry.year ? 0 : -1);
+        if (i >= 0) return eps.slice(i);
+        if (!entry.date && y === entry.year) return eps;
+      }
+    }
+    return [];
+  });
+}
+
+/* ---------- episodes: English Wikipedia "List of ... episodes" (long, detailed summaries) ---------- */
+const wikiApi = params => getJSON(`https://en.wikipedia.org/w/api.php?${new URLSearchParams({ ...params, format: 'json', formatversion: 2, origin: '*' })}`);
+function wikiText(s) {
+  let x = s || '', p;
+  do { p = x; x = x.replace(/\{\{[^{}]*\}\}/g, ''); } while (x !== p);
+  return x.replace(/<ref[^>]*\/>|<ref[^>]*>[\s\S]*?<\/ref>/g, '').replace(/\[\[(?:[^|\]]*\|)?([^\]]+)\]\]/g, '$1').replace(/'{2,}/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+const wikiDate = s => { const m = (s || '').match(/(\d{4})\|(\d{1,2})\|(\d{1,2})/); return m ? `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}` : ''; };
+const parseEpisodeList = txt => txt.split(/\{\{\s*Episode list/i).slice(1).map(b => {
+  // [ \t] after "=": an empty value must not swallow the next "| Field =" line
+  const get = k => (b.match(new RegExp('\\|\\s*' + k + '[ \\t]*=[ \\t]*([\\s\\S]*?)(?=\\n\\s*\\||\\n\\s*\\}\\})')) || [])[1]?.trim() || '';
+  return { title: wikiText(get('Title')), date: wikiDate(get('OriginalAirDate')), sum: wikiText(get('ShortSummary')) };
+}).filter(e => e.title || e.sum);
+async function wikiPages(titles) {
+  const out = new Map();
+  await pool(chunks(titles, 8), 2, async ch => {
+    const r = await wikiApi({ action: 'query', prop: 'revisions', rvprop: 'content', rvslots: 'main', redirects: 1, titles: ch.join('|') });
+    const alias = new Map([...(r.query.normalized || []), ...(r.query.redirects || [])].map(x => [x.from, x.to]));
+    const by = new Map(r.query.pages.map(p => [p.title, p.revisions?.[0]?.slots?.main?.content || '']));
+    for (const x of ch) { let y = x; for (let i = 0; i < 3 && alias.has(y); i++) y = alias.get(y); out.set(x, by.get(y) || ''); }
+  });
+  return titles.map(x => out.get(x) || '');
+}
+function wikiList(name) {
+  return once('wl:' + name.toLowerCase(), async () => {
+    const r = await wikiApi({ action: 'query', list: 'search', srsearch: `List of ${name} episodes`, srlimit: 5 });
+    const hit = r.query.search.find(x => /^List of .*episodes/i.test(x.title));
+    if (!hit) return [];
+    const [txt] = await wikiPages([hit.title]);
+    const subs = [...new Set([...txt.matchAll(/\{\{:([^}|]+)\}\}/g)].map(m => m[1].trim()))].slice(0, 40);
+    let text = txt;
+    if (subs.length) { const got = await wikiPages(subs); text = txt.replace(/\{\{:([^}|]+)\}\}/g, (_, x) => got[subs.indexOf(x.trim())] ?? ''); }
+    let eps = parseEpisodeList(text);
+    if (eps.length < 5) { // season pages only linked, not embedded (One Piece style)
+      const show = hit.title.replace(/^List of /i, '').replace(/ episodes.*$/i, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const seasons = [...new Set([...txt.matchAll(/\[\[([^\]|#]+)(?:\|[^\]]*)?\]\]/g)].map(m => m[1].trim()).filter(x => new RegExp(`^${show}.* season \\d+$`, 'i').test(x)))].slice(0, 40);
+      if (seasons.length) eps = parseEpisodeList((await wikiPages(seasons)).join('\n'));
+    }
+    return eps;
+  });
+}
+function wikiForEntry(entry, root = entry) {
+  return once(`we:${entry.id}:${root.id}`, async () => {
+    if (entry.kind === 'movie' || !entry.date) return [];
+    const names = [...new Set([root, entry].flatMap(x => [x.english, x.name]).filter(Boolean).map(baseName))].slice(0, 3);
+    for (const n of names) {
+      const list = await wikiList(n).catch(() => []);
+      const i = closestByDate(list, entry.date, x => x.date, 3);
+      if (i >= 0) return list.slice(i, i + entry.count);
+    }
+    return [];
+  });
+}
+
+/* ---------- one episode, merged from all sources ---------- */
+// ponytail: localStorage episode cache capped at 600 entries, oldest dropped first
+const epStore = store.get('eps2', {});
+const epMem = new Map();
+const saveEp = (k, v) => { epStore[k] = v; const keys = Object.keys(epStore); if (keys.length > 600) keys.slice(0, keys.length - 600).forEach(x => delete epStore[x]); store.set('eps2', epStore); };
+async function episode(entry, n) {
+  const key = `${entry.id}:${n}`;
+  if (epMem.has(key)) return epMem.get(key);
+  if (epStore[key]) return epStore[key];
+  return once('ep:' + key, async () => {
+    let ep = await kitsuEpisode(entry.id, n).catch(() => null);
+    if (!ep || !ep.thumb || !ep.synopsis) {
+      const [tvl, wk] = await Promise.all([tvmazeEpisodes(entry).catch(() => []), wikiForEntry(entry).catch(() => [])]);
+      const tv = tvl[n - 1], w = wk[n - 1];
+      // Kitsu without a synopsis usually has a romaji title too: prefer the English one
+      ep = { title: (ep?.synopsis ? ep.title : (w?.title || tv?.name || ep?.title)) || '', alt: ep?.alt || '',
+        synopsis: ep?.synopsis || stripTags(tv?.summary) || w?.sum || '', thumb: ep?.thumb || tv?.image?.original || tv?.image?.medium || '', airdate: ep?.airdate || tv?.airdate || w?.date || '' };
+    }
+    if (ep.thumb || ep.synopsis) saveEp(key, ep);
+    return ep;
+  });
+}
+
+// Every episode of the chosen parts, for text search.
+const corpusCache = new Map();
+const docText = d => [d.title, d.synopsis, d.wiki && d.wiki !== d.synopsis ? d.wiki : ''].filter(Boolean).join('. ');
+async function corpus(entries, onProgress) {
+  const key = entries.map(e => `${e.id}:${e.count}`).join(',');
+  if (corpusCache.has(key)) return { key, docs: corpusCache.get(key) };
+  const total = totalOf(entries); let done = 0;
+  const tick = n => { done = Math.min(total, done + n); onProgress?.(done, total); };
+  const parts = await pool(entries, 2, async e => {
+    const [kit, tv, wk] = await Promise.all([kitsuAll(e, tick).catch(() => []), tvmazeEpisodes(e).catch(() => []), wikiForEntry(e, entries[0]).catch(() => [])]);
+    return Array.from({ length: e.count }, (_, i) => {
+      const k = kit[i], v = tv[i], w = wk[i];
+      const syn = k?.synopsis || stripTags(v?.summary);
+      return { e, n: i + 1, title: (k?.synopsis ? k.title : (w?.title || v?.name || k?.title)) || '', alt: k?.alt || '', synopsis: syn || w?.sum || '', wiki: w?.sum || '',
+        thumb: k?.thumb || v?.image?.original || v?.image?.medium || '', airdate: k?.airdate || v?.airdate || w?.date || '' };
+    });
+  });
+  const docs = parts.flat().map((d, abs) => ({ ...d, abs }));
+  docs.forEach(d => { if (d.thumb || d.synopsis) epMem.set(`${d.e.id}:${d.n}`, d); });
+  corpusCache.set(key, docs);
+  return { key, docs };
+}
+
+/* ---------- translation (Google public endpoint) ---------- */
+const trCache = new Map();
+function translate(text, to = lang) {
+  if (!text) return Promise.resolve(text);
+  if (to === 'ru' && /[а-яё]/i.test(text)) return Promise.resolve(text);
+  if (to === 'en' && /^[\x00-\x7F’“”–—…]*$/.test(text)) return Promise.resolve(text);
+  const key = to + ':' + text;
+  if (!trCache.has(key)) trCache.set(key, getJSON(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${to}&dt=t&q=` + encodeURIComponent(text.slice(0, 4500)))
+    .then(r => r[0].map(x => x[0]).join('')).catch(() => { trCache.delete(key); return text; }));
+  return trCache.get(key);
+}
+// Episode texts are English: translate them only when the site language is not English and the toggle is on.
+const localize = s => settings.translate && lang !== 'en' ? translate(s, lang) : Promise.resolve(s);
+function preload(src) { if (src) { const i = new Image(); i.decoding = 'async'; i.src = src; } }
+
+/* ---------- openings / endings (AnimeThemes) ---------- */
+async function themesFor(entries) {
+  const per = await Promise.all(entries.map(async (e, idx) => {
+    const r = await once('at:' + e.id, () => getJSON(`https://api.animethemes.moe/anime?filter[has]=resources&filter[site]=MyAnimeList&filter[external_id]=${e.id}&include=animethemes.song.artists,animethemes.animethemeentries.videos&fields[anime]=name&fields[animetheme]=type,sequence,slug&fields[song]=title&fields[artist]=name&fields[animethemeentry]=episodes,version&fields[video]=link,resolution`)).catch(() => ({ anime: [] }));
+    const off = offsetOf(entries, idx);
+    return (r.anime?.[0]?.animethemes || []).filter(x => x.type === 'OP' || x.type === 'ED').map(x => {
+      const en = x.animethemeentries?.[0] || {};
+      const start = parseInt(en.episodes) || (e.count === 1 ? 1 : null);
+      const vids = (en.videos || []).slice().sort((a, b) => (a.resolution || 0) - (b.resolution || 0));
+      return { e, idx, type: x.type, seq: x.sequence || 1, slug: x.slug, song: x.song?.title || '', artist: (x.song?.artists || []).map(a => a.name).join(', '),
+        eps: en.episodes || '', abs: start ? off + Math.min(start, e.count) - 1 : null, video: vids[0]?.link || '' };
+    });
+  }));
+  return per.flat().sort((a, b) => a.idx - b.idx || (a.abs ?? 1e9) - (b.abs ?? 1e9) || (a.type === b.type ? a.seq - b.seq : a.type === 'OP' ? -1 : 1));
+}
+
+/* ---------- text search: BM25 + in-browser embeddings ---------- */
+const STOP = new Set(('a an the and or of to in on at for with by from is are was were be been being his her their its it he she they them him this that these those as into after before while when where who whom what which ' +
+  'but not no so than then there here has have had will would can could do does did about over under again out up down off only also just very more most some any each other such own same both all i me my we our you your ' +
+  'one two get gets got finally begins begin series episode episodes anime scene season seasons moment almost remember remembered last thing something someone guy girl').split(' '));
+const stem = w => w.length > 4 ? w.replace(/(ies|ing|ed|es|s)$/, m => m === 'ies' ? 'y' : '') : w;
+const toks = s => (String(s).toLowerCase().match(/[a-z0-9]+/g) || []).filter(w => w.length > 1 && !STOP.has(w)).map(stem);
+function bm25(texts, query) {
+  const docs = texts.map(toks), N = docs.length || 1, avg = docs.reduce((n, d) => n + d.length, 0) / N || 1;
+  const df = new Map(); for (const d of docs) for (const w of new Set(d)) df.set(w, (df.get(w) || 0) + 1);
+  const qs = [...new Set(toks(query))];
+  return docs.map(d => {
+    const tf = new Map(); for (const w of d) tf.set(w, (tf.get(w) || 0) + 1);
+    let s = 0;
+    for (const w of qs) { const f = tf.get(w); if (!f) continue; const n = df.get(w); s += Math.log(1 + (N - n + .5) / (n + .5)) * f * 2.5 / (f + 1.5 * (.25 + .75 * d.length / avg)); }
+    return s;
+  });
+}
+const TRANSFORMERS = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2';
+let embedderP;
+const embedder = () => embedderP ||= import(TRANSFORMERS).then(({ pipeline, env }) => {
+  // Cache Storage can be off (opened from disk, sandboxed preview): then rely on the plain HTTP cache
+  let cacheOk = false; try { cacheOk = typeof caches !== 'undefined' && !!caches; } catch {}
+  if (!cacheOk) env.useBrowserCache = false;
+  return pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', { dtype: 'q8' });
+}).catch(e => { embedderP = null; throw e; });
+async function embed(texts, onProgress) {
+  const m = await embedder(), out = [];
+  for (let i = 0; i < texts.length; i += 32) {
+    const r = await m(texts.slice(i, i + 32).map(x => x.slice(0, 1000) || '-'), { pooling: 'mean', normalize: true });
+    const dim = r.dims[1];
+    for (let j = 0; j < r.dims[0]; j++) out.push(r.data.slice(j * dim, (j + 1) * dim));
+    onProgress?.(Math.min(texts.length, i + 32), texts.length);
+    await sleep(0);
+  }
+  return out;
+}
+const vecCache = new Map();
+const dot = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * b[i]; return s; };
+async function findByMemory(entries, text, useAI, stage) {
+  stage(t('Загружаю описания серий'), 0, totalOf(entries));
+  const { key, docs } = await corpus(entries, (d, n) => stage(t('Загружаю описания серий'), d, n));
+  const useful = docs.filter(d => d.synopsis || d.title);
+  if (!useful.length) throw new Error(t('у этих серий нет описаний'));
+  stage(t('Разбираю твоё описание'));
+  const en = await translate(text, 'en');
+  // Tuned on 10 described scenes across AoT, Demon Slayer, FMA:B, One-Punch Man:
+  // words match best on the short synopsis, vectors on the full text with the long Wikipedia recap.
+  const texts = useful.map(docText);
+  const bm = bm25(useful.map(d => `${d.title}. ${d.synopsis}`), en + ' ' + text), bmMax = Math.max(...bm);
+  const bmN = bm.map(s => bmMax ? s / bmMax : 0);
+  let cos = null, aiError = null;
+  if (useAI) {
+    try {
+      stage(t('Загружаю ИИ-модель (один раз, около 25 МБ)'));
+      await embedder();
+      if (!vecCache.has(key)) vecCache.set(key, await embed(texts, (d, n) => stage(t('ИИ читает описания серий'), d, n)));
+      const [qv] = await embed([en]);
+      cos = vecCache.get(key).map(v => dot(v, qv));
+    } catch (e) { aiError = e; }
+  }
+  let score = bmN;
+  if (cos) {
+    const lo = Math.min(...cos), hi = Math.max(...cos), span = hi - lo || 1;
+    // .7 vectors / .3 words ranked every test scene in the top 4 (old .35 mix: rank sum 39 -> 21);
+    // title-only docs get little say from vectors
+    score = cos.map((c, i) => .7 * (texts[i].length < 80 ? .4 : 1) * (c - lo) / span + .3 * bmN[i]);
+  }
+  const ranked = useful.map((d, i) => ({ ...d, score: score[i], bm: bm[i], cos: cos?.[i] ?? null }))
+    .sort((a, b) => b.score - a.score).slice(0, 12).filter(m => m.score > 0);
+  // "very likely" only for a clear leader; "likely" for close runners-up
+  const top = ranked[0]?.score || 0;
+  ranked.forEach((m, i) => { m.level = i === 0 && top - (ranked[1]?.score || 0) >= .08 ? 2 : m.score >= top * .8 ? 1 : 0; });
+  const weak = !ranked.length || ((ranked[0].cos ?? 0) < .25 && ranked[0].bm < 1);
+  return { matches: ranked, ai: !!cos, aiError, weak };
+}
+
+/* ---------- search core: find last remembered episode ---------- */
+// lo = last index known remembered (-1 none), hi = first index known forgotten (total none),
+// k = how many times "unsure" was pressed at this step (probe shifts to neighbours).
+function probe(s) {
+  const mid = Math.floor((s.lo + s.hi) / 2);
+  let k = s.k;
+  for (let d = 0; d <= s.hi - s.lo; d++) {
+    for (const c of d ? [mid + d, mid - d] : [mid]) if (c > s.lo && c < s.hi && k-- === 0) return c;
+  }
+  return null;
+}
+const isDone = s => s.hi - s.lo <= 1 || probe(s) === null;
+const answer = (s, v) => { const p = probe(s); return v === 'yes' ? { lo: p, hi: s.hi, k: 0 } : v === 'no' ? { lo: s.lo, hi: p, k: 0 } : { ...s, k: s.k + 1 }; };
+const questionsLeft = s => isDone(s) ? 0 : Math.ceil(Math.log2(s.hi - s.lo));
+// Grid mode: K evenly spread frames per step, the viewer picks the latest one they remember.
+const GRID_K = 6;
+function gridProbes(s, k = GRID_K) {
+  const n = Math.min(k, s.hi - s.lo - 1), out = [];
+  for (let j = 1; j <= n; j++) { const p = s.lo + Math.round(j * (s.hi - s.lo) / (n + 1)); if (p > s.lo && p < s.hi && !out.includes(p)) out.push(p); }
+  return out;
+}
+const gridPick = (s, j) => { const ps = gridProbes(s); return j < 0 ? { lo: s.lo, hi: ps[0], k: 0 } : { lo: ps[j], hi: ps[j + 1] ?? s.hi, k: 0 }; };
+const gridLeft = s => s.hi - s.lo <= 1 ? 0 : Math.max(1, Math.ceil(Math.log(s.hi - s.lo) / Math.log(GRID_K + 1)));
+
+/* ---------- browser history ---------- */
+const epFromTitle = s => { const m = s.match(/(\d{1,4})\s*(?:-?(?:я|й|ая))?\s*(?:серия|серии|эпизод)/i) || s.match(/(?:серия|эпизод|episode|ep\.?|эп\.?)\s*[#№:]?\s*(\d{1,4})(?!\d)/i); return m ? +m[1] : null; };
+// \b is ASCII-only in JS, so Cyrillic words need Unicode lookarounds
+const HIST_NOISE = /(?<![\p{L}\p{N}])(смотреть|онлайн|бесплатно|в хорошем качестве|аниме сериал|на русском|все серии|русская озвучка|озвучка|субтитры|watch|online|free|english|subbed|dubbed|sub|dub|hd|full|1080p|720p)(?![\p{L}\p{N}])/giu;
+function cleanHistTitle(s) {
+  const marked = s.replace(/(\d{1,4})\s*(?:-?(?:я|й|ая))?\s*(?:серия|серии|эпизод)/gi, ' | ')
+    .replace(/(?:серия|эпизод|episode|ep\.?|эп\.?)\s*[#№:]?\s*\d{1,4}/gi, ' | ')
+    .replace(/(\d{1,2})\s*(?:-?й)?\s*(?:сезон|season)|(?:сезон|season)\s*\d{1,2}/gi, ' ');
+  return marked.split(/\s[|–—-]\s|\|/).map(p => p.replace(HIST_NOISE, ' ').replace(/[«»"“”]/g, '').replace(/[\s:.,!-]+$/, '').replace(/^[\s:.,!-]+/, '').replace(/\s+/g, ' ').trim()).find(p => p.length >= 2) || '';
+}
+function parseHistoryLine(line) {
+  const urlM = line.match(/https?:\/\/\S+/);
+  const text = line.replace(/https?:\/\/\S+/g, ' ').replace(/^\s*\d{1,2}:\d{2}(\s*[AP]M)?\s*/i, '');
+  let ep = epFromTitle(text), season = seasonFrom(text), title = ep ? cleanHistTitle(text) : '';
+  if ((!ep || !title) && urlM) {
+    const L = parseLink(urlM[0]);
+    if (L?.ep) { ep = ep || L.ep; season = season || L.season; title = title || L.title || ''; }
+  }
+  return ep && title.length >= 2 ? { title, ep, season } : null;
+}
+const MONTHS = { янв: 0, фев: 1, мар: 2, апр: 3, мая: 4, май: 4, июн: 5, июл: 6, авг: 7, сен: 8, окт: 9, ноя: 10, дек: 11, jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+function dateFromLine(line) {
+  if (/серия|episode|эпизод|https?:/i.test(line) || line.length > 80) return null;
+  if (/^(сегодня|today)\b/i.test(line)) return new Date();
+  if (/^(вчера|yesterday)\b/i.test(line)) return new Date(Date.now() - 864e5);
+  const y = line.match(/\b(19|20)\d\d\b/), mon = line.toLowerCase().match(/(янв|фев|мар|апр|мая|май|июн|июл|авг|сен|окт|ноя|дек|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/), day = line.match(/\b(\d{1,2})\b/);
+  return y && mon ? new Date(+y[0], MONTHS[mon[1]], day ? +day[1] : 1) : null;
+}
+function parseHistory(text) {
+  let rows = [];
+  try {
+    const j = JSON.parse(text);
+    const arr = j['Browser History'] || j.browserHistory || (Array.isArray(j) ? j : []);
+    rows = arr.map(x => ({ line: `${x.title || ''} ${x.url || ''}`, date: x.time_usec ? new Date(x.time_usec / 1000) : null }));
+  } catch {
+    let cur = null;
+    for (const raw of text.split(/\r?\n/)) { const line = raw.trim(); if (!line) continue; const d = dateFromLine(line); if (d) { cur = d; continue; } rows.push({ line, date: cur }); }
+  }
+  const groups = new Map();
+  for (const r of rows) {
+    const p = parseHistoryLine(r.line); if (!p) continue;
+    const key = normTitle(p.title); if (!key) continue;
+    const g = groups.get(key) || { title: p.title, best: null, visits: 0, last: null, sample: r.line };
+    g.visits++;
+    const sa = p.season || 1, sb = g.best?.season || 1;
+    if (!g.best || sa > sb || (sa === sb && p.ep > g.best.ep)) { g.best = p; g.sample = r.line; g.when = r.date; }
+    if (r.date && (!g.last || r.date > g.last)) g.last = r.date;
+    groups.set(key, g);
+  }
+  return [...groups.values()].sort((a, b) => (b.last || 0) - (a.last || 0) || b.visits - a.visits);
+}
+
+/* ---------- self-checks ---------- */
+(function selfCheck() {
+  const ok = (c, ...m) => console.assert(c, ...m);
+  for (const total of [1, 2, 25, 220, 1180]) for (const last of [-1, 0, Math.floor(total / 3), total - 1]) {
+    let s = { lo: -1, hi: total, k: 0 }, steps = 0;
+    // "unsure" only while 3+ candidates remain, so a confident answer can still pin the exact episode
+    while (!isDone(s)) { s = answer(s, steps % 4 === 1 && s.k === 0 && s.hi - s.lo > 3 ? 'unsure' : probe(s) <= last ? 'yes' : 'no'); steps++; }
+    ok(s.lo === last && s.hi === last + 1, 'search broken', total, last, s);
+    let g = { lo: -1, hi: total, k: 0 }, gs = 0;
+    while (g.hi - g.lo > 1 && gs < 50) { let j = -1; gridProbes(g).forEach((p, i) => { if (p <= last) j = i; }); g = gridPick(g, j); gs++; }
+    ok(g.lo === last && gs <= Math.ceil(Math.log(total + 1) / Math.log(GRID_K + 1)) + 1, 'grid broken', total, last, g, gs);
+  }
+  let s = { lo: 3, hi: 7, k: 0 };
+  for (let i = 0; i < 3; i++) s = answer(s, 'unsure');
+  ok(isDone(s), 'all-unsure should finish');
+  ok(mainChain(2, [{ source_id: 1, target_id: 2, relation: 'sequel' }, { source_id: 3, target_id: 2, relation: 'prequel' }, { source_id: 1, target_id: 9, relation: 'side_story' }]).join() === '1,2,3', 'chain broken');
+  const L1 = parseLink('https://jut.su/shingekii-no-kyojin/season-3/episode-8.html');
+  ok(L1 && L1.ep === 8 && L1.season === 3 && L1.title === 'shingekii no kyojin', 'jutsu link', L1);
+  ok(parseLink('shikimori.io/animes/z20-naruto')?.mal === 20, 'shiki link');
+  ok(parseLink('https://animego.org/anime/ataka-titanov-final-2299')?.title === 'ataka titanov final', 'animego link');
+  ok(parseLink('https://animego.org/anime/one-2299')?.ep == null, 'no fake episode');
+  ok(parseLink('Наруто') === null && parseLink('атака титанов') === null, 'plain text is not a link');
+  ok(lat2cyr('ataka titanov') === 'атака титанов' && lat2cyr('vanpis') === 'ванпис', 'translit');
+  const h1 = parseHistoryLine('Наруто 2 сезон 37 серия смотреть онлайн | jut.su');
+  ok(h1 && h1.title === 'Наруто' && h1.ep === 37 && h1.season === 2, 'history ru', h1);
+  const h2 = parseHistoryLine('Naruto Episode 37 English Subbed');
+  ok(h2 && h2.title === 'Naruto' && h2.ep === 37, 'history en', h2);
+  const h3 = parseHistoryLine('Атака титанов: Финал - 8 серия - смотреть аниме онлайн');
+  ok(h3 && h3.title === 'Атака титанов: Финал' && h3.ep === 8, 'history dash', h3);
+  ok(parseHistoryLine('Главная страница YouTube') === null, 'history noise');
+  const h4 = parseHistoryLine('Смотреть Наруто 37 серия онлайн бесплатно');
+  ok(h4 && h4.title === 'Наруто' && h4.ep === 37 && !h4.season, 'history cyrillic noise', h4);
+  ok(seasonFrom('Атака титанов сезон 3 серия 8') === 3 && seasonFrom('season-3/episode-8') === 3, 'season word-first');
+  const b = bm25(['Eren carries a boulder to seal the wall breach', 'Luffy fights pirates at sea', 'titans attack'], 'boulder seals the wall');
+  ok(b[0] > b[1] && b[0] > b[2], 'bm25', b);
+  ok(baseName('One Punch Man 2nd Season') === 'One Punch Man' && baseName('One-Punch Man Season 2') === 'One-Punch Man' && baseName('Shingeki no Kyojin Season 3 Part 2') === 'Shingeki no Kyojin' && baseName('Shingeki no Kyojin: The Final Season') === 'Shingeki no Kyojin', 'baseName');
+  const wl = parseEpisodeList('{{Episode list\n| EpisodeNumber = 2\n| Title = The [[Lone]] Cyborg\n| OriginalAirDate = {{Start date|2015|10|12}}\n| ShortSummary = A cyborg named [[Genos (character)|Genos]] fights {{Nihongo|Mosquito Girl|x}}Mosquito Girl.<ref>x</ref>\n| LineColor = B10000\n}}');
+  ok(wl.length === 1 && wl[0].title === 'The Lone Cyborg' && wl[0].date === '2015-10-12' && wl[0].sum === 'A cyborg named Genos fights Mosquito Girl.', 'wiki parse', wl);
+  const we = parseEpisodeList('{{Episode list\n| Title = Monster Traits\n| ShortSummary   = \n| LineColor = FDD017\n}}');
+  ok(we.length === 1 && we[0].sum === '', 'wiki empty summary', we);
+  ok(closestByDate([{ d: '2015-10-05' }, { d: '2015-10-12' }], '2015-10-13', x => x.d, 3) === 1 && closestByDate([{ d: '2007-02-08' }], '2007-02-15', x => x.d, 3) === -1, 'closestByDate');
+})();
+
+/* ---------- scope helpers ---------- */
+function locate(entries, abs) {
+  for (const e of entries) { if (abs < e.count) return { e, n: abs + 1 }; abs -= e.count; }
+  return null;
+}
+const totalOf = entries => entries.reduce((n, e) => n + e.count, 0);
+const offsetOf = (entries, idx) => totalOf(entries.slice(0, idx));
+const epShort = (e, n) => e.kind === 'movie' ? t('фильм') : t('серия {n}', { n });
+function label(entries, abs, short) {
+  const p = locate(entries, abs);
+  if (!p) return '';
+  if (p.e.kind === 'movie') return short ? t('фильм') : nm(p.e);
+  return entries.length > 1 && !short ? `${nm(p.e)}, ${t('серия {n}', { n: p.n })}` : t('серия {n}', { n: p.n });
+}
+// "8-ю серию «Title»" for use after помнишь/не помнишь
+function acc(entries, abs) {
+  const p = locate(entries, abs); if (!p) return '';
+  if (p.e.kind === 'movie') return t('фильм «{title}»', { title: nm(p.e) });
+  return t('{n}-ю серию', { n: p.n }) + (entries.length > 1 ? t(' «{title}»', { title: nm(p.e) }) : '');
+}
+// Episode number from a link, history, or screenshot -> 1-based position in the chosen parts.
+function hintPos(entries, season, ep, entryId) {
+  if (!ep || !entries.length) return 0;
+  const own = entryId && entries.find(e => e.id === entryId);
+  if (own) return offsetOf(entries, entries.indexOf(own)) + Math.min(ep, own.count);
+  if (season > 1) {
+    const tvs = entries.filter(e => e.kind === 'tv' || e.kind === 'ona');
+    const x = tvs[season - 1];
+    if (x) return offsetOf(entries, entries.indexOf(x)) + Math.min(ep, x.count);
+  }
+  return Math.min(ep, totalOf(entries));
+}
+// Approximate weekly schedule: how many episodes were out by the end of a given year.
+function airedBy(entries, year) {
+  const cut = new Date(year + 1, 1, 15).getTime();
+  let n = 0;
+  for (const e of entries) {
+    const d0 = e.date ? Date.parse(e.date) : NaN;
+    if (Number.isNaN(d0)) { n += e.count; continue; }
+    for (let i = 0; i < e.count; i++) { if (d0 + (e.kind === 'movie' ? 0 : i * 7 * 864e5) > cut) return n; n++; }
+  }
+  return n;
+}
+// Minutes left after position `pos` (last watched, 0-based)
+function minutesLeft(entries, pos) {
+  let m = 0, abs = 0;
+  for (const e of entries) for (let i = 0; i < e.count; i++, abs++) if (abs > pos) m += e.duration || 24;
+  return m;
+}
+const fmtDur = min => { const h = Math.floor(min / 60), m = min % 60; return h ? (m ? t('{h} ч {m} мин', { h, m }) : t('{h} ч', { h })) : t('{m} мин', { m }); };
+
+/* ---------- settings / persistence ---------- */
+const settings = Object.assign({ translate: true, spoilers: true, ai: true, method: 'frames', quizMode: 'frames' }, store.get('settings', {}));
+const saveSettings = () => store.set('settings', settings);
+let session = store.get('session', null);
+const saveSession = () => session ? store.set('session', session) : store.del('session');
+const lib = () => store.get('library', []);
+const saveLib = l => store.set('library', l);
+const libItem = ({ id, title, ru, en, poster, url, entries, pos, at }) => { const total = Math.max(1, totalOf(entries)); return { id, title, ru, en, poster, url, entries, total, pos: Math.max(-1, Math.min(pos, total - 1)), at: at || Date.now(), seen: total }; };
+function upsertLib(item) { const l = lib().filter(x => x.id !== item.id); l.unshift(item); saveLib(l); }
+const validLib = data => Array.isArray(data) ? data.filter(x => x && Number.isFinite(x.id) && Array.isArray(x.entries) && Number.isFinite(x.pos) && Number.isFinite(x.total)) : [];
+function mergeLib(items) {
+  const m = new Map(lib().map(x => [x.id, x]));
+  for (const x of items) { const cur = m.get(x.id); if (!cur || (x.at || 0) >= (cur.at || 0)) m.set(x.id, x); }
+  saveLib([...m.values()].sort((a, b) => (b.at || 0) - (a.at || 0)));
+}
+const recent = () => store.get('recent', []);
+function rememberRecent(a) { store.set('recent', [{ id: a.id, title: a.title, ru: a.ru, en: a.en, name: a.name, poster: a.poster, year: a.year, count: a.count }, ...recent().filter(x => x.id !== a.id)].slice(0, 12)); }
+// Transfer code: the library compressed into one copy-pasteable string.
+const b64u = u8 => { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function packLib(l) {
+  const bytes = new TextEncoder().encode(JSON.stringify(l));
+  if (typeof CompressionStream === 'undefined') return 'NKS0.' + b64u(bytes);
+  const z = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());
+  return 'NKS1.' + b64u(z);
+}
+async function unpackLib(code) {
+  const [tag, body] = code.trim().replace(/^.*#\/sync\//, '').split('.');
+  const bytes = unb64u(body || '');
+  const json = tag === 'NKS1' ? await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text() : tag === 'NKS0' ? new TextDecoder().decode(bytes) : '';
+  return validLib(JSON.parse(json));
+}
+// New episodes and next air dates of titles in the library (checked once per visit).
+let refreshed = false;
+async function refreshOngoing(repaint) {
+  if (refreshed) return; refreshed = true;
+  const ids = [...new Set(lib().map(x => x.entries[x.entries.length - 1]?.id).filter(Boolean))];
+  if (!ids.length) return;
+  const fresh = new Map((await animesByIds(ids).catch(() => [])).map(e => [e.id, e]));
+  const l = lib(); let changed = false;
+  for (const x of l) {
+    const last = x.entries[x.entries.length - 1], f = fresh.get(last?.id);
+    if (!f) continue;
+    if (f.count > last.count) { x.seen ??= x.total; last.count = f.count; x.total = totalOf(x.entries); changed = true; }
+    if (last.status !== f.status || last.next !== f.next || !last.duration) { last.status = f.status; last.next = f.next; last.duration ||= f.duration; changed = true; }
+  }
+  if (changed) { saveLib(l); repaint(); }
+}
+
+/* ---------- chrome: header, footer, theme, language ---------- */
+const themes = ['auto', 'dark', 'light'];
+const themeIcon = { auto: 'ph-circle-half', dark: 'ph-moon', light: 'ph-sun' };
+let theme = store.get('theme', 'auto');
+function applyTheme() {
+  if (theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = theme;
+  $('#theme i').className = 'ph ' + themeIcon[theme];
+  $('#theme').setAttribute('aria-label', t('Тема: {name}', { name: { auto: t('как в системе'), dark: t('тёмная'), light: t('светлая') }[theme] }));
+}
+function paintChrome() {
+  document.documentElement.lang = lang;
+  $('#logo').innerHTML = `${esc(t('серия'))}<b>?</b>`;
+  $('#logo').setAttribute('aria-label', t('На главную'));
+  $('#nav-lib span').textContent = t('Мои тайтлы');
+  $('#lang b').textContent = LANGS[lang];
+  $('#lang').setAttribute('aria-label', t('Язык: русский. Переключить на английский'));
+  $('#foot').innerHTML = t('Данные: {links}. Список хранится в этом браузере, на другое устройство его можно перенести кодом в «Моих тайтлах».', {
+    links: [['https://shikimori.io', 'Shikimori'], ['https://anilist.co', 'AniList'], ['https://kitsu.app', 'Kitsu'], ['https://www.tvmaze.com', 'TVmaze'], ['https://en.wikipedia.org', 'Wikipedia'], ['https://animethemes.moe', 'AnimeThemes'], ['https://trace.moe', 'trace.moe']]
+      .map(([u, n]) => `<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join(', ') });
+  applyTheme();
+}
+$('#theme').onclick = () => { theme = themes[(themes.indexOf(theme) + 1) % 3]; store.set('theme', theme); applyTheme(); toast({ auto: t('Тема как в системе'), dark: t('Тёмная тема'), light: t('Светлая тема') }[theme]); };
+$('#lang').onclick = () => { lang = lang === 'ru' ? 'en' : 'ru'; store.set('lang', lang); paintChrome(); route(); };
+
+/* ---------- router ---------- */
+let cleanup = () => {};
+function route() {
+  cleanup(); cleanup = () => {};
+  const { parts: [a, id, sub], q } = parseHash();
+  window.scrollTo(0, 0);
+  if (a === 'a' && id) {
+    if (sub === 'quiz') return viewQuiz(+id);
+    if (sub === 'result') return viewResult(+id);
+    return viewTitle(+id, q);
+  }
+  if (a === 'library') return viewLibrary();
+  if (a === 'history') return viewHistory();
+  if (a === 'import') return viewImport();
+  if (a === 'screen') return viewScreen();
+  if (a === 'sync' && id) return viewSync(id);
+  viewHome();
+}
+addEventListener('hashchange', route);
+const go = h => { if (location.hash === h) route(); else location.hash = h; };
+
+const img = (src, alt = '', cls = '') => src ? `<img src="${esc(src)}" alt="${esc(alt)}" loading="lazy" decoding="async" class="${cls}" onerror="this.style.visibility='hidden'">` : '<div class="ph-img"></div>';
+const loadingView = msg => { app.innerHTML = `<div class="wrap loading-page"><i class="ph ph-spinner-gap spin" style="font-size:28px"></i>${esc(msg || t('Загружаю…'))}</div>`; };
+const errorView = (msg, retry) => { app.innerHTML = `<div class="wrap err fade-in"><i class="ph ph-cloud-slash"></i><p>${esc(msg)}</p><button class="btn sm" id="retry"><i class="ph ph-arrow-clockwise"></i>${esc(t('Ещё раз'))}</button></div>`; $('#retry').onclick = retry; };
+const progressHTML = (msg, d, n) => `<div class="prog-box"><div class="mut"><i class="ph ph-spinner-gap spin"></i> ${esc(msg)}${n ? ` <span class="mono">${esc(t('{d} из {n}', { d, n }))}</span>` : '…'}</div><div class="pbar"><i style="width:${n ? Math.round(d / n * 100) : 12}%"></i></div></div>`;
+const resRow = (x, i, hint = '') => `<a class="res" role="option" id="opt${i}" href="#/a/${x.id}${hint}">
+  ${img(x.poster)}
+  <div><div class="t">${esc(nm(x))}</div><div class="s">${esc([x.name !== nm(x) ? x.name : '', x.year, kindName(x.kind)].filter(Boolean).join(' · '))}</div></div>
+  <div class="n">${x.count ? esc(x.kind === 'movie' ? t('фильм') : epsWord(x.count)) : esc(statusName(x.status))}</div></a>`;
+const nextEpisodeNote = e => e?.status === 'ongoing' && e.next && Date.parse(e.next) > Date.now() ? t('новая серия {date}', { date: fmtDate(e.next, true) }) : '';
+
+/* ---------- views: home ---------- */
+function libCard(x) {
+  const next = x.pos + 1;
+  const pct = x.total ? Math.round(((x.pos + 1) / x.total) * 100) : 0;
+  const fresh = x.seen != null ? x.total - x.seen : 0;
+  const status = next >= x.total ? t('Досмотрено') : t('Дальше: {what}', { what: label(x.entries, next, x.entries.length === 1) });
+  const left = next < x.total ? t('≈ {time} до конца', { time: fmtDur(minutesLeft(x.entries, x.pos)) }) : '';
+  const airs = nextEpisodeNote(x.entries[x.entries.length - 1]);
+  return `<article class="card" data-id="${x.id}">
+    <div class="poster">${img(x.poster, nm(x))}<a href="#/a/${x.id}" aria-label="${esc(nm(x))}"></a><div class="prog" style="width:${pct}%"></div></div>
+    <h3>${esc(nm(x))}</h3>
+    <div class="meta">${fresh > 0 ? `<span class="badge-new">+${fresh} ${esc(pw(fresh, 'fresh'))}</span><br>` : ''}${esc(status)}${left ? `<br><span class="faint">${esc(left)}</span>` : ''}${airs ? `<br><span class="faint">${esc(airs)}</span>` : ''}</div>
+    <div class="ctrl">
+      <button class="btn icon" data-act="dec" aria-label="${esc(t('Минус серия'))}"><i class="ph ph-minus"></i></button>
+      <span class="ep mono">${x.pos + 1} / ${x.total}</span>
+      <button class="btn icon" data-act="inc" aria-label="${esc(t('Плюс серия'))}"><i class="ph ph-plus"></i></button>
+      <button class="btn icon ghost" data-act="del" aria-label="${esc(t('Удалить'))}"><i class="ph ph-trash"></i></button>
+    </div>
+  </article>`;
+}
+function bindLib(root, rerender) {
+  root.onclick = e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const id = +b.closest('.card').dataset.id;
+    const l = lib(); const i = l.findIndex(x => x.id === id); if (i < 0) return;
+    const x = l[i];
+    if (b.dataset.act === 'inc') x.pos = Math.min(x.total - 1, x.pos + 1);
+    if (b.dataset.act === 'dec') x.pos = Math.max(-1, x.pos - 1);
+    if (b.dataset.act === 'del') { l.splice(i, 1); saveLib(l); rerender(); toast(t('Удалено из списка'), { label: t('Вернуть'), run: () => { const m = lib(); m.splice(i, 0, x); saveLib(m); rerender(); } }); return; }
+    x.seen = x.total; x.at = Date.now(); saveLib(l); rerender();
+  };
+}
+const railCard = x => `<a href="#/a/${x.id}"><div class="poster">${img(x.poster, nm(x))}</div><div class="t">${esc(nm(x))}</div><div class="s">${esc([x.year, x.count ? epsWord(x.count) : ''].filter(Boolean).join(' · '))}</div></a>`;
+
+function viewHome() {
+  document.title = t('На какой я серии?');
+  const l = lib(), rec = recent().filter(x => !l.some(y => y.id === x.id)).slice(0, 10);
+  app.innerHTML = `<div class="wrap">
+    <section class="hero fade-in"><div>
+      <h1>${t('На какой я<br>серии<b>?</b>')}</h1>
+      <p>${esc(t('Найди аниме и вспомни серию по кадрам, опенингам, скриншоту или своими словами. Узнаешь, откуда продолжать.'))}</p>
+      <div class="search" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+        <label for="q">${esc(t('Название аниме или ссылка'))}</label>
+        <div class="field"><i class="ph ph-magnifying-glass"></i><input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="${esc(t('Название или ссылка: Наруто, jut.su/naruuto…'))}" aria-controls="results"></div>
+        <div class="results" id="results" role="listbox"></div>
+      </div>
+      ${session ? `<div class="resume">${img(session.poster)}<div><span class="mut" style="font-size:13px">${esc(t('Незаконченный поиск'))}</span><b>${esc(nm(session))}</b></div><a class="btn primary sm" href="#/a/${session.id}/quiz">${esc(t('Продолжить'))}</a><button class="btn ghost icon" id="drop" aria-label="${esc(t('Сбросить'))}"><i class="ph ph-x"></i></button></div>` : ''}
+      <div class="tools">
+        <a href="#/screen"><i class="ph ph-image-square"></i>${esc(t('По скриншоту'))}</a>
+        <a href="#/history"><i class="ph ph-clock-counter-clockwise"></i>${esc(t('По истории браузера'))}</a>
+        <a href="#/import"><i class="ph ph-user-circle"></i>${esc(t('Импорт с Shikimori или AniList'))}</a>
+        <button id="paste"><i class="ph ph-link"></i>${esc(t('Вставить ссылку'))}</button>
+      </div>
+    </div><div class="fan" id="fan" aria-label="${esc(t('Популярное'))}"></div></section>
+    ${l.length ? `<section class="section"><div class="section-head"><h2>${esc(t('Мои тайтлы'))}</h2>${l.length > 6 ? `<a class="btn ghost sm" href="#/library">${esc(t('Все {n}', { n: l.length }))}<i class="ph ph-arrow-right"></i></a>` : ''}</div><div class="lib" id="lib">${l.slice(0, 6).map(libCard).join('')}</div></section>` : ''}
+    ${rec.length ? `<section class="section"><div class="section-head"><h2>${esc(t('Недавно открывал'))}</h2></div><div class="rail">${rec.map(railCard).join('')}</div></section>` : ''}
+    <section class="section"><div class="section-head"><h2>${esc(t('Популярное'))}</h2></div><div class="rail skel-rail" id="rail">${'<a><div class="poster"></div></a>'.repeat(8)}</div></section>
+  </div>`;
+  popular().then(p => {
+    if (!$('#rail')) return;
+    const mine = new Set(l.map(x => x.id));
+    $('#fan').innerHTML = p.slice(0, 3).map(x => `<a href="#/a/${x.id}">${img(x.poster, nm(x))}<span>${esc(nm(x))}</span></a>`).join('');
+    $('#rail').classList.remove('skel-rail');
+    $('#rail').innerHTML = p.filter(x => !mine.has(x.id)).map(railCard).join('');
+  }).catch(() => $('#rail')?.closest('.section').remove());
+  if ($('#drop')) $('#drop').onclick = () => { session = null; saveSession(); viewHome(); };
+  const paintLib = () => { const el = $('#lib'); if (el) el.innerHTML = lib().slice(0, 6).map(libCard).join(''); };
+  if ($('#lib')) { bindLib($('#lib'), paintLib); refreshOngoing(paintLib); }
+
+  const q = $('#q'), box = $('#results'), combo = $('.search');
+  let ctl, items = [], hint = '', sel = -1, timer;
+  const paint = () => {
+    $$('.res', box).forEach((el, i) => el.setAttribute('aria-selected', i === sel));
+    combo.setAttribute('aria-expanded', items.length > 0);
+  };
+  const run = async () => {
+    const v = q.value.trim();
+    ctl?.abort();
+    if (v.length < 2) { box.innerHTML = ''; items = []; paint(); return; }
+    ctl = new AbortController(); const signal = ctl.signal;
+    box.innerHTML = `<div class="res-msg">${esc(t('Ищу…'))}</div>`;
+    try {
+      const L = parseLink(v);
+      let note = '', fuzzy = false; hint = '';
+      if (L) {
+        items = await resolveLink(L, signal);
+        note = t('Ссылка с {host}', { host: L.host }) + (L.ep ? ': ' + (L.season ? t('{s}-й сезон, ', { s: L.season }) : '') + t('серия {n}', { n: L.ep }) : '');
+        if (L.ep) hint = `?ep=${L.ep}${L.season ? '&season=' + L.season : ''}&src=link`;
+      } else ({ items, fuzzy } = await smartSearch([v], signal));
+      if (signal.aborted) return;
+      sel = items.length ? 0 : -1;
+      const head = [note && `<div class="res-msg"><i class="ph ph-link"></i> ${esc(note)}</div>`,
+        fuzzy && `<div class="res-msg">${esc(t('Точных совпадений нет. Возможно, ты искал:'))}</div>`,
+        items.backup && `<div class="res-msg">${esc(t('Shikimori не отвечает, ищу через AniList.'))}</div>`].filter(Boolean).join('');
+      box.innerHTML = items.length ? head + items.map((x, i) => resRow(x, i, hint)).join('')
+        : `<div class="res-msg">${esc(L ? t('По ссылке не получилось понять, что за тайтл. Вставь название.') : t('Ничего не нашлось. Попробуй другое написание: по-английски, ромадзи или по-японски.'))}</div>`;
+      paint();
+    } catch (e) { if (e.name !== 'AbortError') box.innerHTML = `<div class="res-msg">${esc(t('Сервисы поиска не отвечают. Проверь интернет и попробуй ещё раз.'))}</div>`; }
+  };
+  q.oninput = () => { clearTimeout(timer); timer = setTimeout(run, 280); };
+  q.onkeydown = e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (items.length) { sel = (sel + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length; paint(); $('#opt' + sel)?.scrollIntoView({ block: 'nearest' }); } }
+    if (e.key === 'Enter') { e.preventDefault(); if (items[sel]) go('#/a/' + items[sel].id + hint); else run(); }
+    if (e.key === 'Escape') { box.innerHTML = ''; items = []; paint(); }
+  };
+  $('#paste').onclick = async () => {
+    try { const x = (await navigator.clipboard.readText()).trim(); if (!x) throw 0; q.value = x; run(); }
+    catch { q.focus(); toast(t('Вставь ссылку в поле поиска: Ctrl+V')); }
+  };
+  if (matchMedia('(hover: hover)').matches) q.focus();
+  cleanup = () => { ctl?.abort(); clearTimeout(timer); };
+}
+
+/* ---------- views: library ---------- */
+function viewLibrary() {
+  document.title = t('Мои тайтлы');
+  const l = lib();
+  app.innerHTML = `<div class="wrap section fade-in">
+    <div class="section-head"><h2 style="font-size:32px">${esc(t('Мои тайтлы'))}</h2>
+      <div class="head-actions">
+        <button class="btn ghost sm" id="xfer-b"><i class="ph ph-devices"></i>${esc(t('Перенос'))}</button>
+        <a class="btn ghost sm" href="#/import"><i class="ph ph-user-circle"></i>${esc(t('С Shikimori'))}</a>
+        <button class="btn ghost sm" id="exp" ${l.length ? '' : 'disabled'}><i class="ph ph-download-simple"></i>${esc(t('Файл'))}</button>
+        <label class="btn ghost sm" style="cursor:pointer"><i class="ph ph-upload-simple"></i>${esc(t('Из файла'))}<input type="file" accept="application/json" id="imp" hidden></label>
+      </div></div>
+    <section class="panel xfer" id="xfer" hidden>
+      <h2 class="ph2">${esc(t('Перенос на другое устройство'))}</h2>
+      <p class="mut" style="margin:0 0 14px;font-size:14px">${esc(t('Список живёт в памяти этого браузера. Чтобы открыть его на телефоне или другом компьютере, создай код, отправь его себе (например, в «Избранное» Telegram) и вставь там: «Мои тайтлы», затем «Перенос».'))}</p>
+      <div class="mrow" style="margin:0 0 10px"><button class="btn primary sm" id="mk" ${l.length ? '' : 'disabled'}><i class="ph ph-key"></i>${esc(t('Создать код'))}</button><button class="btn sm" id="cp" hidden><i class="ph ph-copy"></i>${esc(t('Скопировать'))}</button></div>
+      <textarea id="code-out" readonly hidden></textarea>
+      <label class="lbl" for="code-in" style="margin-top:16px">${esc(t('Есть код с другого устройства?'))}</label>
+      <textarea id="code-in" placeholder="${esc(t('Вставь код сюда'))}"></textarea>
+      <div class="mrow"><span></span><button class="btn sm" id="apply"><i class="ph ph-arrow-line-down"></i>${esc(t('Добавить из кода'))}</button></div>
+    </section>
+    ${l.length ? `<div class="lib" id="lib" style="margin-top:20px">${l.map(libCard).join('')}</div>`
+      : `<div class="empty" style="margin-top:20px"><i class="ph ph-film-strip"></i>${t('Пока пусто. Найди аниме на главной: после поиска серии тайтл сохранится здесь. Или <a href="#/import">импортируй список</a> с Shikimori или AniList.')}<div style="margin-top:16px"><a class="btn primary sm" href="#/">${esc(t('Найти аниме'))}</a></div></div>`}
+  </div>`;
+  const paintLib = () => { const el = $('#lib'); if (el) el.innerHTML = lib().map(libCard).join(''); };
+  if ($('#lib')) { bindLib($('#lib'), () => lib().length ? paintLib() : viewLibrary()); refreshOngoing(paintLib); }
+  $('#xfer-b').onclick = () => { $('#xfer').hidden = !$('#xfer').hidden; };
+  $('#mk').onclick = async () => {
+    const code = await packLib(lib());
+    const out = $('#code-out'); out.hidden = false; out.value = location.protocol.startsWith('http') ? `${location.origin}${location.pathname}#/sync/${code}` : code;
+    $('#cp').hidden = false; out.select();
+  };
+  $('#cp').onclick = async () => { try { await navigator.clipboard.writeText($('#code-out').value); toast(t('Код скопирован')); } catch { $('#code-out').select(); toast(t('Выдели код и скопируй вручную')); } };
+  $('#apply').onclick = async () => {
+    try { const items = await unpackLib($('#code-in').value); if (!items.length) throw 0; mergeLib(items); toast(t('Добавлено: {n}', { n: items.length })); viewLibrary(); }
+    catch { toast(t('Код не подошёл. Скопируй его целиком')); }
+  };
+  $('#exp').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(lib(), null, 2)], { type: 'application/json' }));
+    a.download = lang === 'ru' ? 'moi-taitly.json' : 'my-anime.json'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  $('#imp').onchange = async e => {
+    try { const ok = validLib(JSON.parse(await e.target.files[0].text())); if (!ok.length) throw 0; mergeLib(ok); toast(t('Импортировано: {n}', { n: ok.length })); viewLibrary(); }
+    catch { toast(t('Файл не подошёл')); }
+  };
+}
+async function viewSync(code) {
+  loadingView(t('Добавляю список…'));
+  try { const items = await unpackLib(code); if (!items.length) throw 0; mergeLib(items); toast(t('Добавлено из кода: {n}', { n: items.length })); go('#/library'); }
+  catch { errorView(t('Код переноса повреждён или неполный.'), () => go('#/library')); }
+}
+
+/* ---------- views: import from Shikimori / AniList ---------- */
+const RATE = { watching: 'w', rewatching: 'r', on_hold: 'h', dropped: 'd', completed: 'c', planned: 'p', CURRENT: 'w', REPEATING: 'r', PAUSED: 'h', DROPPED: 'd', COMPLETED: 'c', PLANNING: 'p' };
+const rateName = s => ({ w: t('Смотрю'), r: t('Пересматриваю'), h: t('Отложено'), d: t('Брошено'), c: t('Просмотрено'), p: t('В планах') }[s] || s);
+const UNFINISHED = new Set(['w', 'r', 'h', 'd']);
+async function loadProfile(src, nick) {
+  if (src === 'shiki') {
+    const rates = await getJSON(`${SHIKI}/api/users/${encodeURIComponent(nick)}/anime_rates?limit=5000&is_nickname=1`);
+    return rates.filter(r => r.anime).map(r => {
+      const a = r.anime, count = a.kind === 'movie' ? 1 : (a.status === 'ongoing' ? a.episodes_aired : (a.episodes || a.episodes_aired)) || 0;
+      return { status: RATE[r.status] || r.status, progress: r.episodes || 0, at: Date.parse(r.updated_at) || Date.now(),
+        entry: { id: a.id, title: a.russian || a.name, ru: a.russian || '', en: '', name: a.name, english: '', kind: a.kind, status: a.status, count, year: +(a.aired_on || '').slice(0, 4) || null, date: a.aired_on || '', poster: a.image?.original ? SHIKI + a.image.original : '', duration: 24 } };
+    });
+  }
+  const d = await alq(`query($u:String){MediaListCollection(userName:$u,type:ANIME){lists{entries{status progress updatedAt media{${AL_FIELDS}}}}}}`, { u: nick });
+  return d.MediaListCollection.lists.flatMap(l => l.entries).filter(x => x.media.idMal)
+    .map(x => ({ status: RATE[x.status] || x.status, progress: x.progress || 0, at: (x.updatedAt || 0) * 1000 || Date.now(), entry: alEntry(x.media) }));
+}
+function viewImport() {
+  document.title = t('Импорт списка');
+  let src = 'shiki', rows = [], picked = new Set();
+  app.innerHTML = `<div class="wrap section fade-in narrow">
+    <h2 class="page-h">${esc(t('Импорт списка'))}</h2>
+    <p class="mut lead-p">${esc(t('Если ты отмечал аниме на Shikimori или AniList, там уже записано, на какой серии ты остановился. Нужен только ник, профиль должен быть открытым.'))}</p>
+    <div class="seg" id="src"><button data-src="shiki">Shikimori</button><button data-src="anilist">AniList</button></div>
+    <form class="search" id="nick-form" style="margin-top:16px"><label for="nick">${esc(t('Ник'))}</label>
+      <div class="field"><i class="ph ph-user"></i><input id="nick" autocomplete="off" spellcheck="false" placeholder="${esc(t('Ник или ссылка на профиль'))}"><button class="btn primary sm">${esc(t('Загрузить'))}</button></div></form>
+    <div id="imp-out"></div></div>`;
+  const segs = () => $$('#src button').forEach(b => b.setAttribute('aria-pressed', b.dataset.src === src));
+  $$('#src button').forEach(b => b.onclick = () => { src = b.dataset.src; segs(); });
+  segs();
+  const out = $('#imp-out');
+  const addLabel = () => t('Добавить в Мои тайтлы: {n}', { n: picked.size });
+  const paint = () => {
+    out.innerHTML = `<p class="mut" style="margin:20px 0 0">${esc(t('Найдено: {n}. Отмечены те, что ты не досмотрел.', { n: rows.length }))}</p>
+      <div class="chips"><button class="btn ghost sm" data-sel="unfinished">${esc(t('Недосмотренные'))}</button><button class="btn ghost sm" data-sel="all">${esc(t('Все'))}</button><button class="btn ghost sm" data-sel="none">${esc(t('Ничего'))}</button></div>
+      <div class="list">${rows.map((r, i) => `<label class="imp-row"><input type="checkbox" value="${i}" ${picked.has(i) ? 'checked' : ''}>${img(r.entry.poster)}<div><div class="t">${esc(nm(r.entry))}</div><div class="s">${esc(rateName(r.status))} · ${esc(r.progress ? t('{a} из {b}', { a: r.progress, b: r.entry.count || '?' }) : t('не начато'))}</div></div><span></span></label>`).join('')}</div>
+      <div class="startbar"><button class="btn primary" id="add" ${picked.size ? '' : 'disabled'}><i class="ph ph-plus"></i><span>${esc(addLabel())}</span></button></div>`;
+    $$('.imp-row input', out).forEach(c => c.onchange = () => { c.checked ? picked.add(+c.value) : picked.delete(+c.value); $('#add').disabled = !picked.size; $('#add span').textContent = addLabel(); });
+    $$('[data-sel]', out).forEach(b => b.onclick = () => {
+      picked = new Set(rows.map((r, i) => i).filter(i => b.dataset.sel === 'all' || (b.dataset.sel === 'unfinished' && UNFINISHED.has(rows[i].status))));
+      paint();
+    });
+    $('#add').onclick = () => {
+      const items = [...picked].map(i => rows[i]).map(r => libItem({ id: r.entry.id, title: r.entry.title, ru: r.entry.ru, en: r.entry.en, poster: r.entry.poster, url: `${SHIKI}/animes/${r.entry.id}`,
+        entries: [{ ...r.entry, count: Math.max(r.entry.count, r.progress, 1) }], pos: r.progress - 1, at: r.at }));
+      mergeLib(items); toast(t('Добавлено: {n}', { n: items.length })); go('#/library');
+    };
+  };
+  $('#nick-form').onsubmit = async e => {
+    e.preventDefault();
+    let nick = $('#nick').value.trim();
+    const m = nick.match(/(?:shikimori\.\w+|anilist\.co\/user)\/([^/?#]+)/i);
+    if (m) { nick = decodeURIComponent(m[1]); src = /anilist/i.test($('#nick').value) ? 'anilist' : 'shiki'; segs(); }
+    if (!nick) return $('#nick').focus();
+    out.innerHTML = progressHTML(t('Загружаю список'));
+    try {
+      rows = (await loadProfile(src, nick)).sort((a, b) => (UNFINISHED.has(b.status) - UNFINISHED.has(a.status)) || b.at - a.at);
+      picked = new Set(rows.map((r, i) => i).filter(i => UNFINISHED.has(rows[i].status) && rows[i].progress > 0));
+      if (!rows.length) out.innerHTML = `<p class="mut" style="margin-top:20px">${esc(t('Список пуст.'))}</p>`; else paint();
+    } catch (err) {
+      out.innerHTML = `<p class="mut" style="margin-top:20px">${esc(err.status === 404 || /private|not found/i.test(err.message) ? t('Такого профиля нет или он закрыт. Проверь ник и настройки приватности.') : t('Сервис не ответил. Попробуй ещё раз.'))}</p>`;
+    }
+  };
+}
+
+/* ---------- views: browser history ---------- */
+function viewHistory() {
+  document.title = t('Поиск по истории браузера');
+  app.innerHTML = `<div class="wrap section fade-in narrow">
+    <h2 class="page-h">${esc(t('Найти по истории браузера'))}</h2>
+    <p class="mut lead-p">${esc(t('Браузер помнит, какие серии ты открывал. Сайт не может прочитать историю сам, но её можно скопировать сюда. Всё обрабатывается только у тебя в браузере.'))}</p>
+    <ol class="steps">
+      <li>${t('Открой историю: <kbd>Ctrl</kbd> + <kbd>H</kbd> или адрес <span class="mono">chrome://history</span>')}</li>
+      <li>${esc(t('В поиске по истории введи название аниме или сайта, где смотрел'))}</li>
+      <li>${t('Нажми <kbd>Ctrl</kbd> + <kbd>A</kbd>, затем <kbd>Ctrl</kbd> + <kbd>C</kbd>')}</li>
+      <li>${esc(t('Вставь сюда и нажми «Найти серии»'))}</li>
+    </ol>
+    <label class="lbl" for="hist">${esc(t('История или список ссылок'))}</label>
+    <textarea id="hist" rows="7" placeholder="${esc(t('Например: Наруто 2 сезон 37 серия смотреть онлайн | jut.su'))}"></textarea>
+    <div class="mrow"><label class="btn ghost sm" style="cursor:pointer"><i class="ph ph-file-arrow-up"></i>${esc(t('Файл из Google Takeout'))}<input type="file" id="hist-file" accept=".json,.txt,.html,.csv" hidden></label>
+      <button class="btn primary" id="hist-go"><i class="ph ph-magnifying-glass"></i>${esc(t('Найти серии'))}</button></div>
+    <div id="hist-out"></div></div>`;
+  const out = $('#hist-out');
+  const show = text => {
+    const groups = parseHistory(text);
+    if (!groups.length) { out.innerHTML = `<p class="mut" style="margin-top:20px">${esc(t('Серий в тексте не нашлось. Нужны строки, где есть название и номер серии, например «Наруто 37 серия».'))}</p>`; return; }
+    out.innerHTML = `<div class="list">${groups.slice(0, 30).map((g, i) => `<div class="hrow">
+      <div><b>${esc(g.title)}</b><div class="mut" style="font-size:14px">${esc(t('Последняя в истории: {what}', { what: (g.best.season ? t('{s}-й сезон, ', { s: g.best.season }) : '') + t('серия {n}', { n: g.best.ep }) }))}${g.when ? ' · ' + esc(fmtDate(g.when)) : ''} · ${g.visits} ${esc(pw(g.visits, 'rec'))}</div><div class="sample">${esc(g.sample)}</div></div>
+      <button class="btn primary sm" data-g="${i}">${esc(t('Найти тайтл'))}</button><div class="picks" id="picks${i}"></div></div>`).join('')}</div>`;
+    $$('[data-g]', out).forEach(b => b.onclick = async () => {
+      const g = groups[+b.dataset.g], box = $('#picks' + b.dataset.g);
+      b.disabled = true; box.innerHTML = `<div class="res-msg">${esc(t('Ищу…'))}</div>`;
+      const items = await searchByTitle(g.title).catch(() => []);
+      const hint = `?ep=${g.best.ep}${g.best.season ? '&season=' + g.best.season : ''}&src=history`;
+      box.innerHTML = items.length ? `<div class="results" style="box-shadow:none">${items.slice(0, 4).map((x, i) => resRow(x, 'h' + i, hint)).join('')}</div>` : `<div class="res-msg">${esc(t('Не нашёл. Попробуй ввести название на главной.'))}</div>`;
+      b.disabled = false;
+    });
+  };
+  $('#hist-go').onclick = () => show($('#hist').value);
+  $('#hist-file').onchange = async e => { const f = e.target.files[0]; if (f) show(await f.text()); };
+}
+
+/* ---------- views: screenshot search (trace.moe) ---------- */
+const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+function viewScreen() {
+  document.title = t('Поиск по скриншоту');
+  const touch = matchMedia('(hover: none)').matches;
+  app.innerHTML = `<div class="wrap section fade-in narrow">
+    <h2 class="page-h">${esc(t('Найти по скриншоту'))}</h2>
+    <p class="mut lead-p">${esc(t('Есть кадр или скриншот из серии? Сервис trace.moe узнает аниме, номер серии и даже минуту. Бесплатно, до 100 поисков в месяц.'))}</p>
+    <label class="drop" id="drop" tabindex="0"><i class="ph ph-image-square"></i><b>${esc(touch ? t('Выбери скриншот') : t('Перетащи картинку сюда'))}</b><span class="mut">${esc(touch ? t('Нажми, чтобы выбрать фото из галереи') : t('или нажми, чтобы выбрать файл. Можно вставить из буфера: Ctrl+V'))}</span><input type="file" accept="image/*" id="shot-file" hidden></label>
+    <form class="search" id="url-form" style="margin-top:12px"><label for="img-url">${esc(t('Ссылка на картинку'))}</label>
+      <div class="field"><i class="ph ph-link"></i><input id="img-url" autocomplete="off" spellcheck="false" placeholder="${esc(t('Или вставь ссылку на картинку'))}"><button class="btn primary sm">${esc(t('Найти'))}</button></div></form>
+    <div id="shot-out"></div></div>`;
+  const out = $('#shot-out');
+  const run = async ({ file, url }) => {
+    out.innerHTML = progressHTML(t('Ищу этот кадр среди миллионов'));
+    try {
+      let body; if (file) { body = new FormData(); body.append('image', file); }
+      const r = await getJSON('https://api.trace.moe/search?anilistInfo&cutBorders' + (url ? '&url=' + encodeURIComponent(url) : ''), file ? { method: 'POST', body } : {}, 0);
+      const seen = new Set();
+      let hits = (r.result || []).filter(x => x.anilist?.idMal && !x.anilist.isAdult).filter(x => { const k = x.anilist.idMal + ':' + x.episode; if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 3);
+      if (hits[0]?.similarity >= .9) hits = hits.filter(h => h.similarity >= .87); // a confident hit: drop the noise
+      if (!hits.length) { out.innerHTML = `<p class="mut" style="margin-top:20px">${esc(t('Не узнал этот кадр. Попробуй скриншот без рамок и надписей, прямо из видео.'))}</p>`; return; }
+      const names = new Map((await animesByIds(hits.map(h => h.anilist.idMal)).catch(() => [])).map(e => [e.id, e]));
+      out.innerHTML = `<div class="matches">${hits.map(h => {
+        const e = names.get(h.anilist.idMal), ep = Array.isArray(h.episode) ? h.episode[0] : h.episode;
+        const title = e ? nm(e) : (h.anilist.title.english || h.anilist.title.romaji);
+        const sure = h.similarity >= .9;
+        return `<div class="match fade-in">
+          <div class="img">${h.video ? `<video src="${esc(h.video)}&size=m" muted autoplay loop playsinline poster="${esc(h.image || '')}"></video>` : img(h.image)}</div>
+          <div><div class="k"><b>${esc(t('совпадение {p}%', { p: Math.round(h.similarity * 100) }))}</b>${sure ? '' : ' · ' + esc(t('может быть не то'))}</div>
+            <h3>${esc(title)}</h3>
+            <p class="mut" style="margin:0 0 8px">${esc([ep ? t('серия {n}', { n: ep }) : '', t('момент {time}', { time: mmss(h.from) })].filter(Boolean).join(', '))}</p>
+            <div class="row"><a class="btn primary sm" href="#/a/${h.anilist.idMal}${ep ? `?ep=${ep}&entry=${h.anilist.idMal}&src=shot` : ''}"><i class="ph ph-arrow-right"></i>${esc(t('Открыть тайтл'))}</a></div></div></div>`;
+      }).join('')}</div>${r.quota ? `<p class="mut" style="font-size:13px;margin-top:12px">${esc(t('Осталось поисков в этом месяце: {n}', { n: Math.max(0, r.quota - (r.quotaUsed || 0)) }))}</p>` : ''}`;
+    } catch (e) {
+      const msg = e.status === 402 || e.status === 429 ? t('Лимит бесплатных поисков на этот месяц закончился.')
+        : url && (e.status === 400 || e.status === 404) ? t('Не получилось скачать картинку по ссылке. Проверь ссылку или загрузи файл.')
+        : t('Сервис trace.moe не ответил. Попробуй ещё раз.');
+      out.innerHTML = `<p class="mut" style="margin-top:20px">${esc(msg)}</p>`;
+    }
+  };
+  const drop = $('#drop');
+  $('#shot-file').onchange = e => { const f = e.target.files[0]; if (f) run({ file: f }); };
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+  drop.ondragleave = () => drop.classList.remove('over');
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); const f = [...e.dataTransfer.files].find(x => x.type.startsWith('image/')); if (f) run({ file: f }); };
+  drop.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#shot-file').click(); } };
+  $('#url-form').onsubmit = e => { e.preventDefault(); const u = $('#img-url').value.trim(); if (/^https?:\/\//i.test(u)) run({ url: u }); else $('#img-url').focus(); };
+  const onPaste = e => { const f = [...(e.clipboardData?.files || [])].find(x => x.type.startsWith('image/')); if (f) { e.preventDefault(); run({ file: f }); } };
+  addEventListener('paste', onPaste);
+  cleanup = () => removeEventListener('paste', onPaste);
+}
+
+/* ---------- views: title ---------- */
+const METHODS = {
+  frames: { icon: 'ph-cards', name: 'По кадрам', desc: 'Показываем кадр из серии, ты отвечаешь «помню» или «нет». Самый точный способ.' },
+  grid: { icon: 'ph-squares-four', name: 'Сетка кадров', desc: 'Шесть кадров за раз, выбираешь самый поздний знакомый. На длинных тайтлах шагов в 2-3 раза меньше.' },
+  describe: { icon: 'ph-chat-text', name: 'Опишу словами', desc: 'Напиши, что помнишь последним. Сайт сравнит это с подробными пересказами всех серий, а ИИ в браузере поймёт смысл, даже если слова другие.' },
+  themes: { icon: 'ph-music-notes', name: 'По опенингам', desc: 'Музыка хорошо будит память. Послушай опенинги и эндинги по порядку и выбери последний, который помнишь.' },
+};
+async function viewTitle(id, q = new URLSearchParams()) {
+  loadingView();
+  let a;
+  try { a = await loadAnime(id); } catch { return errorView(t('Не удалось загрузить тайтл ни с Shikimori, ни с AniList.'), () => viewTitle(id, q)); }
+  const { parts } = parseHash();
+  if (parts[0] !== 'a' || +parts[1] !== id || parts[2]) return;
+  document.title = nm(a);
+  rememberRecent(a);
+  const all = [...a.main, ...a.other];
+  const saved = session?.id === id ? session : null;
+  let mode = 'all', method = METHODS[settings.method] ? settings.method : 'frames', memDraft = '', descToken = 0, themeToken = 0;
+  let picked = new Set(a.main.map(e => e.id));
+  if (a.other.some(e => e.id === id)) picked = new Set([id]);
+  if (saved) { picked = new Set(saved.entries.map(e => e.id)); mode = 'custom'; }
+  const inLib = lib().find(x => x.id === id);
+  const hintEp = +q.get('ep') || 0, hintSeason = +q.get('season') || 0, hintEntry = +q.get('entry') || 0;
+  const hintSrc = { link: t('Из ссылки'), history: t('Из истории'), shot: t('Со скриншота') }[q.get('src')] || t('Подсказка');
+  if (hintEntry && !picked.has(hintEntry) && all.some(e => e.id === hintEntry)) picked.add(hintEntry);
+  const years = all.map(e => e.year).filter(Boolean), y0 = Math.min(...years), y1 = new Date().getFullYear();
+  const entryRow = e => `<label class="entry${e.id === id ? ' cur' : ''}"><input type="checkbox" value="${e.id}" ${picked.has(e.id) ? 'checked' : ''}>${img(e.poster)}<div><div class="t" data-this="${esc(t('этот'))}">${esc(nm(e))}</div><div class="s">${esc([kindName(e.kind), e.year, e.status === 'ongoing' ? t('онгоинг') : ''].filter(Boolean).join(' · '))}</div></div><span class="n mono">${e.kind === 'movie' ? '1' : e.count}</span></label>`;
+  const desc = lang === 'ru' ? (a.descRu || a.descEn) : (a.descEn || a.descRu);
+  const descLong = desc.length > 320;
+  const genres = lang === 'ru' && a.genresRu.length ? a.genresRu : a.genresEn;
+  const airs = nextEpisodeNote(a.main[a.main.length - 1]);
+
+  app.innerHTML = `<div class="backdrop">${a.poster ? `<img src="${esc(a.poster)}" alt="">` : ''}</div>
+  <div class="wrap fade-in">
+    <div class="title-head">
+      <div class="poster">${img(a.poster, nm(a))}</div>
+      <div>
+        <h1>${esc(nm(a))}</h1>
+        <p class="orig">${esc([a.name, a.japanese].filter(x => x && x !== nm(a)).join(' · '))}</p>
+        <div class="facts">
+          ${a.year ? `<span><i class="ph ph-calendar-blank"></i>${a.year}</span>` : ''}
+          <span><i class="ph ph-television-simple"></i>${esc(kindName(a.kind))}</span>
+          ${a.count ? `<span><i class="ph ph-film-strip"></i>${esc(a.kind === 'movie' ? t('фильм') : epsWord(a.count))}</span>` : ''}
+          ${a.score ? `<span><i class="ph ph-star"></i>${a.score}</span>` : ''}
+          ${a.status ? `<span>${esc(statusName(a.status))}</span>` : ''}
+          ${airs ? `<span><i class="ph ph-bell-simple"></i>${esc(airs)}</span>` : ''}
+        </div>
+      </div>
+      <div class="desc-wrap">
+        ${desc ? `<p class="desc ${descLong ? 'clamp' : ''}" id="desc">${esc(desc)}</p>${descLong ? `<button class="linkbtn" id="more">${esc(t('Читать полностью'))}</button>` : ''}` : ''}
+        ${genres.length ? `<p class="mut" style="font-size:14px;margin:12px 0 0">${esc(genres.slice(0, 6).join(', '))}</p>` : ''}
+        ${inLib ? `<p style="margin:14px 0 0;font-size:14px"><i class="ph ph-bookmark-simple" style="color:var(--acc)"></i> ${esc(t('В твоём списке: {what}', { what: inLib.pos < 0 ? t('ещё не начато') : t('последняя просмотренная: {ep}', { ep: label(inLib.entries, inLib.pos) }) }))}</p>` : ''}
+        ${a.backup ? `<p class="mut" style="font-size:13px;margin:12px 0 0"><i class="ph ph-info"></i> ${esc(t('Shikimori сейчас не отвечает, данные взяты с AniList.'))}</p>` : ''}
+      </div>
+    </div>
+
+    <section class="panel" style="margin-top:32px">
+      <h2 class="ph2">${esc(t('Что проверяем'))}</h2>
+      <p class="mut" style="margin:0 0 16px;font-size:14px">${esc(t('Чем больше сезонов выбрано, тем точнее поиск по всей истории. Лишние вопросы почти не добавляются.'))}</p>
+      <div class="hint" id="hint" hidden></div>
+      ${all.length > 1 ? `<div class="seg" role="group" aria-label="scope">
+        <button data-mode="all">${esc(t('Весь сюжет'))}</button><button data-mode="one">${esc(t('Только этот'))}</button><button data-mode="custom">${esc(t('Свой выбор'))}</button></div>` : ''}
+      <div class="entries" id="main">${a.main.map(entryRow).join('')}</div>
+      ${a.other.length ? `<details class="more" ${(saved || hintEntry) && a.other.some(e => picked.has(e.id)) ? 'open' : ''}><summary><i class="ph ph-caret-right"></i>${esc(t('Ещё из франшизы: спешлы, OVA, фильмы ({n})', { n: a.other.length }))}</summary><div class="entries">${a.other.map(entryRow).join('')}</div></details>` : ''}
+      <div class="range-in"><span>${esc(t('Если примерно помнишь, сузь поиск: смотрел точно до'))}</span><input id="from" type="number" min="0" inputmode="numeric" placeholder="0" aria-label="${esc(t('Точно смотрел до серии'))}"><span>${esc(t('и точно не дальше'))}</span><input id="to" type="number" min="1" inputmode="numeric" placeholder="${esc(t('все'))}" aria-label="${esc(t('Точно не смотрел после серии'))}"><span>${esc(t('серии'))}</span></div>
+      ${years.length ? `<div class="range-in"><span>${esc(t('Смотрел, пока выходило, и бросил примерно в'))}</span><select id="year" aria-label="${esc(t('Год'))}"><option value="">${esc(t('не помню'))}</option>${Array.from({ length: Math.max(0, y1 - y0 + 1) }, (_, i) => `<option>${y0 + i}</option>`).join('')}</select><span id="year-out"></span></div>` : ''}
+      <div class="opts">
+        ${lang !== 'en' ? `<label class="opt"><span class="switch"><input type="checkbox" id="o-tr" ${settings.translate ? 'checked' : ''}><span></span></span><span class="tx"><b>${esc(t('Переводить на русский'))}</b><span>${esc(t('Названия и описания серий есть только на английском'))}</span></span></label>` : ''}
+        <label class="opt"><span class="switch"><input type="checkbox" id="o-sp" ${settings.spoilers ? 'checked' : ''}><span></span></span><span class="tx"><b>${esc(t('Прятать описания'))}</b><span>${esc(t('Чтобы не наткнуться на спойлер из серии, которую ты не видел'))}</span></span></label>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:20px">
+      <h2 class="ph2">${esc(t('Как вспоминаем'))}</h2>
+      <div class="seg methods" role="group" aria-label="method">${Object.entries(METHODS).map(([k, m]) => `<button data-m="${k}"><i class="ph ${m.icon}"></i>${esc(t(m.name))}</button>`).join('')}</div>
+      <p class="mut mdesc" id="mdesc"></p>
+      <div id="mbody"></div>
+    </section>
+    <div class="startbar" id="startbar">
+      <button class="btn primary" id="start"><i class="ph ph-play"></i><span id="start-t"></span></button>
+      <span class="mut" id="summary" style="font-size:14px"></span>
+    </div>
+  </div>`;
+
+  if ($('#more')) $('#more').onclick = e => { $('#desc').classList.toggle('clamp'); e.target.textContent = $('#desc').classList.contains('clamp') ? t('Читать полностью') : t('Свернуть'); };
+  // descriptions come in one language per source: translate the other way when needed
+  if (desc && settings.translate && ((lang === 'ru' && !a.descRu) || (lang === 'en' && !a.descEn))) translate(desc, lang).then(x => { if ($('#desc')) $('#desc').textContent = x; });
+  const selected = () => all.filter(e => picked.has(e.id)).sort(byDate).map(({ id, title, ru, en, name, english, kind, count, year, poster, status, date, duration, next }) => ({ id, title, ru, en, name, english, kind, count, year, poster, status, date, duration, next }));
+  const range = () => {
+    const tot = totalOf(selected());
+    const from = Math.max(0, Math.min(tot, +$('#from').value || 0));
+    const to = Math.max(from + 1, Math.min(tot, +$('#to').value || tot));
+    return { lo: from - 1, hi: to, tot };
+  };
+  function startQuiz(r, via) {
+    const entries = selected(), total = totalOf(entries);
+    session = { id, title: a.title, ru: a.ru, en: a.en, name: a.name, poster: a.poster, url: a.url, entries, total, s: { lo: Math.max(-1, r.lo), hi: Math.min(total, r.hi), k: 0 }, hist: [], asked: 0, mode: settings.quizMode === 'grid' ? 'grid' : 'frames', via };
+    if (isDone(session.s)) session.result = { lo: session.s.lo, hi: session.s.hi };
+    saveSession();
+    go(`#/a/${id}/${session.result ? 'result' : 'quiz'}`);
+  }
+
+  const boxes = () => $$('.entry input');
+  const sync = () => {
+    $$('.seg[aria-label="scope"] button').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === mode));
+    boxes().forEach(b => b.checked = picked.has(+b.value));
+    const sel = selected(), tot = totalOf(sel);
+    const { lo, hi } = range(), span = Math.max(1, hi - lo - 1);
+    $('#start').disabled = !tot || lo + 1 >= hi;
+    $('#start-t').textContent = session?.id === id ? t('Начать заново') : t('Начать');
+    const quiz = method === 'frames' || method === 'grid';
+    const n = method === 'grid' ? Math.max(1, Math.ceil(Math.log(span + 1) / Math.log(GRID_K + 1))) : Math.ceil(Math.log2(span + 1));
+    $('#summary').textContent = !all.length ? t('Серий пока не вышло') : !tot ? t('Выбери хотя бы одну часть')
+      : t('{eps} в {n} {parts}', { eps: epsWord(tot), n: sel.length, parts: pw(sel.length, 'part') }) + (quiz ? ', ' + t('примерно {what}', { what: method === 'grid' ? stepWord(n) : qWord(n) }) : '');
+    if (hintEp) {
+      const pos = hintPos(sel, hintSeason, hintEp, hintEntry);
+      $('#hint').hidden = !pos;
+      if (pos) $('#hint').innerHTML = `<i class="ph ph-link"></i><span>${esc(t('{src}: {what}. Это {ep}, поэтому поиск начнётся после неё. Если смотрел меньше, поправь число ниже.', { src: hintSrc, what: (hintSeason ? t('{s}-й сезон, ', { s: hintSeason }) : '') + t('серия {n}', { n: hintEp }), ep: label(sel, pos - 1) }))}</span>`;
+    }
+  };
+  const refreshMethod = () => { if (method === 'describe' || method === 'themes') renderMethod(); };
+  $$('.seg[aria-label="scope"] button').forEach(b => b.onclick = () => {
+    mode = b.dataset.mode;
+    if (mode === 'all') picked = new Set(a.main.map(e => e.id));
+    if (mode === 'one') picked = new Set([id]);
+    sync(); refreshMethod();
+  });
+  boxes().forEach(b => b.onchange = () => { b.checked ? picked.add(+b.value) : picked.delete(+b.value); mode = 'custom'; sync(); refreshMethod(); });
+  $('#from').oninput = $('#to').oninput = sync;
+  if ($('#year')) $('#year').onchange = e => {
+    const y = +e.target.value;
+    if (!y) { $('#year-out').textContent = ''; $('#to').value = ''; return sync(); }
+    const n = airedBy(selected(), y), tot = totalOf(selected());
+    $('#to').value = n < tot ? Math.max(1, n) : '';
+    $('#year-out').textContent = n < tot ? t('≈ к тому времени вышло {eps}', { eps: epsWord(n) }) : t('к тому времени вышло всё');
+    sync();
+  };
+  if ($('#o-tr')) $('#o-tr').onchange = e => { settings.translate = e.target.checked; saveSettings(); };
+  $('#o-sp').onchange = e => { settings.spoilers = e.target.checked; saveSettings(); };
+  if (hintEp) { const pos = hintPos(selected(), hintSeason, hintEp, hintEntry); if (pos > 1) $('#from').value = pos - 1; }
+  if (session?.id === id) $('#startbar').insertAdjacentHTML('afterbegin', `<a class="btn" href="#/a/${id}/quiz"><i class="ph ph-arrow-counter-clockwise"></i>${esc(t('Продолжить'))}</a>`);
+
+  function renderMethod() {
+    $$('.methods button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === method));
+    $('#mdesc').textContent = t(METHODS[method].desc);
+    const quiz = method === 'frames' || method === 'grid';
+    $('#start').hidden = !quiz;
+    descToken++; themeToken++;
+    if (quiz) $('#mbody').innerHTML = '';
+    if (method === 'describe') renderDescribe();
+    if (method === 'themes') renderThemes();
+    sync();
+  }
+  $$('.methods button').forEach(b => b.onclick = () => {
+    method = b.dataset.m; settings.method = method;
+    if (method === 'frames' || method === 'grid') settings.quizMode = method;
+    saveSettings(); renderMethod();
+  });
+
+  /* describe what you remember */
+  function renderDescribe() {
+    $('#mbody').innerHTML = `<label class="lbl" for="mem">${esc(t('Что последнее помнишь из сюжета?'))}</label>
+      <textarea id="mem" rows="3" placeholder="${esc(t('Например: Эрен впервые превратился в титана и заткнул дыру в стене огромным камнем'))}">${esc(memDraft)}</textarea>
+      <p class="mut" style="font-size:13px;margin:8px 0 0">${esc(t('Лучше всего работают имена героев, места и конкретные события. Можно писать на любом языке.'))}</p>
+      <div class="mrow">
+        <label class="opt slim"><span class="switch"><input type="checkbox" id="o-ai" ${settings.ai ? 'checked' : ''}><span></span></span><span class="tx"><b>${esc(t('Умный ИИ-поиск'))}</b><span>${esc(t('Понимает смысл, а не только совпадение слов. Модель около 25 МБ скачается один раз и работает прямо в браузере, бесплатно'))}</span></span></label>
+        <button class="btn primary" id="find"><i class="ph ph-sparkle"></i>${esc(t('Найти серию'))}<kbd>Ctrl+Enter</kbd></button>
+      </div>
+      <div id="matches"></div>`;
+    $('#mem').oninput = e => { memDraft = e.target.value; };
+    $('#mem').onkeydown = e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) $('#find').click(); };
+    $('#o-ai').onchange = e => { settings.ai = e.target.checked; saveSettings(); };
+    $('#find').onclick = runDescribe;
+  }
+  async function runDescribe() {
+    const text = $('#mem').value.trim();
+    if (text.length < 4) { $('#mem').focus(); return toast(t('Опиши хотя бы пару слов')); }
+    const entries = selected();
+    if (!entries.length) return toast(t('Выбери хотя бы одну часть'));
+    const my = ++descToken, box = $('#matches'), btn = $('#find');
+    btn.disabled = true;
+    const stage = (msg, d, n) => { if (my === descToken && box.isConnected) box.innerHTML = progressHTML(msg, d, n); };
+    try {
+      const found = await findByMemory(entries, text, settings.ai, stage);
+      if (my !== descToken || !box.isConnected) return;
+      await renderMatches(found, entries, box, my);
+    } catch (e) { if (box.isConnected) box.innerHTML = `<p class="mut" style="margin-top:16px">${esc(t('Не получилось: {why}. Попробуй ещё раз.', { why: e.message || t('нет связи') }))}</p>`; }
+    finally { if (btn.isConnected) btn.disabled = false; }
+  }
+  async function renderMatches({ matches, ai, aiError, weak }, entries, box, my) {
+    if (!matches.length) { box.innerHTML = `<p class="mut" style="margin-top:16px">${esc(t('Похожих серий не нашлось. Попробуй описать по-другому: имена героев, место, главное событие.'))}</p>`; return; }
+    const multi = entries.length > 1;
+    const LEVEL = [t('возможно'), t('похоже'), t('очень похоже')];
+    const card = async (m, i) => {
+      const text = m.wiki || m.synopsis;
+      const [tt, s] = await Promise.all([localize(m.title), localize(text)]);
+      return `<div class="match fade-in">
+        <div class="img">${m.thumb ? `<img src="${esc(m.thumb)}" alt="" loading="lazy">` : `<div class="nodata small"><i class="ph ph-image-broken"></i></div>`}</div>
+        <div><div class="k">${esc(multi ? nm(m.e) + ', ' : '')}${esc(epShort(m.e, m.n))} · <b class="lv${m.level}">${esc(LEVEL[m.level])}</b></div>
+          <h3>${esc(tt || t('Серия {n}', { n: m.n }))}</h3>
+          ${s ? `<div class="syn ${settings.spoilers && i ? 'hidden' : ''}" data-reveal data-label="${esc(t('Описание скрыто от спойлеров. Нажми, чтобы показать'))}"><p>${esc(s)}</p></div>` : `<p class="mut" style="font-size:14px;margin:0">${esc(t('Описания этой серии нет, совпало название.'))}</p>`}
+          <div class="row"><button class="btn primary sm" data-pick="${m.abs}"><i class="ph ph-check"></i>${esc(t('Это последнее, что помню'))}</button><button class="btn ghost sm" data-final="${m.abs}">${esc(t('Сразу к итогу'))}</button></div>
+        </div></div>`;
+    };
+    const first = await Promise.all(matches.slice(0, 6).map(card));
+    if (my !== descToken || !box.isConnected) return;
+    box.innerHTML = `${aiError ? `<p class="mut" style="font-size:13px;margin:16px 0 0"><i class="ph ph-info"></i> ${esc(t('ИИ-модель не загрузилась, искал по словам.'))}</p>` : ''}
+      ${weak ? `<div class="hint" style="margin:16px 0 0"><i class="ph ph-warning-circle"></i><span>${esc(t('Уверенных совпадений нет. Добавь подробностей: имена героев, место, кто с кем сражался. Ниже самые близкие варианты.'))}</span></div>` : ''}
+      <div class="matches" id="mlist">${first.join('')}</div>
+      <div class="mrow">${matches.length > 6 ? `<button class="btn ghost sm" id="more-m"><i class="ph ph-plus"></i>${esc(t('Ещё варианты'))}</button>` : '<span></span>'}</div>
+      <p class="mut" style="font-size:13px;margin:12px 0 0">${esc(ai ? t('Искал по смыслу с помощью ИИ и по совпадению слов.') : t('Искал по совпадению слов.'))} ${esc(t('После выбора пара вопросов проверит, не смотрел ли ты дальше.'))}</p>`;
+    const bind = () => {
+      $$('[data-reveal].hidden', box).forEach(el => el.onclick = () => el.classList.remove('hidden'));
+      $$('[data-pick]', box).forEach(b => b.onclick = () => { const abs = +b.dataset.pick; const r = range(); startQuiz({ lo: abs, hi: Math.max(abs + 1, r.hi) }, 'describe'); });
+      $$('[data-final]', box).forEach(b => b.onclick = () => { const abs = +b.dataset.final; startQuiz({ lo: abs, hi: abs + 1 }, 'describe'); });
+    };
+    bind();
+    if ($('#more-m')) $('#more-m').onclick = async e => {
+      const btn = e.currentTarget; // currentTarget is null once the handler awaits
+      btn.disabled = true;
+      $('#mlist').insertAdjacentHTML('beforeend', (await Promise.all(matches.slice(6).map((m, i) => card(m, i + 6)))).join(''));
+      btn.remove(); bind();
+    };
+  }
+
+  /* openings and endings */
+  let player = null;
+  async function renderThemes() {
+    const entries = selected(), my = ++themeToken, body = $('#mbody');
+    if (!entries.length) { body.innerHTML = `<p class="mut">${esc(t('Выбери хотя бы одну часть.'))}</p>`; return; }
+    body.innerHTML = `<div class="themes">${'<div class="theme skel" style="height:64px"></div>'.repeat(4)}</div>`;
+    const list = await themesFor(entries).catch(() => []);
+    if (my !== themeToken || !body.isConnected) return;
+    if (!list.length) { body.innerHTML = `<p class="mut">${esc(t('Для этих частей опенингов в базе AnimeThemes нет. Попробуй кадры или описание словами.'))}</p>`; return; }
+    let lastEntry = null;
+    body.innerHTML = `<div class="themes">${list.map((x, i) => {
+      const head = entries.length > 1 && x.e !== lastEntry ? `<div class="theme-h">${esc(nm(x.e))}</div>` : '';
+      lastEntry = x.e;
+      return `${head}<div class="theme" data-i="${i}">
+        <button class="btn icon play" ${x.video ? '' : 'disabled'} aria-label="${esc(t('Слушать {slug}', { slug: x.slug }))}"><i class="ph ph-play"></i></button>
+        <div class="tx"><div class="t"><span class="tag ${x.type === 'ED' ? 'ed' : ''}">${esc(x.slug)}</span>${esc(x.song || t('Без названия'))}</div>
+          <div class="s">${esc([x.artist, x.eps ? t('серии {eps}', { eps: x.eps }) : t('серии неизвестны')].filter(Boolean).join(' · '))}</div></div>
+        ${x.abs != null ? `<button class="btn sm pick">${esc(t('Последний, что помню'))}</button>` : '<span></span>'}
+        <div class="vid"></div></div>`;
+    }).join('')}</div><div id="tconfirm"></div>`;
+    $$('.theme', body).forEach(row => {
+      const x = list[+row.dataset.i];
+      row.querySelector('.play').onclick = () => {
+        const on = row.classList.contains('on');
+        player?.row.classList.remove('on'); player?.row.querySelector('.play i').classList.replace('ph-stop', 'ph-play');
+        if (player) { player.v.pause(); player.v.remove(); player = null; }
+        if (on) return;
+        const v = document.createElement('video');
+        v.src = x.video; v.controls = true; v.autoplay = true; v.playsInline = true; v.preload = 'auto';
+        row.querySelector('.vid').append(v); row.classList.add('on'); row.querySelector('.play i').classList.replace('ph-play', 'ph-stop');
+        player = { v, row };
+      };
+      const pick = row.querySelector('.pick');
+      if (pick) pick.onclick = () => choose(+row.dataset.i);
+    });
+    function choose(i) {
+      const cur = list[i], next = list.find(x => x.abs != null && x.abs > cur.abs);
+      $$('.theme', body).forEach(r => r.classList.toggle('picked', +r.dataset.i === i));
+      const start = hi => { const r = range(); startQuiz({ lo: Math.max(r.lo, cur.abs - 1), hi: Math.min(r.hi, Math.max(cur.abs + 1, hi)) }, 'themes'); };
+      const box = $('#tconfirm');
+      box.innerHTML = `<div class="tconfirm fade-in">
+        <p>${t('<b>Последний, что помнишь:</b> {slug} «{song}», {ep}.', { slug: esc(cur.slug), song: esc(cur.song), ep: esc(label(entries, cur.abs)) })}</p>
+        ${next ? `<p>${esc(t('Следующая песня по порядку: {slug} «{song}», начинается с {ep}. Её ты уже не слышал?', { slug: next.slug, song: next.song, ep: label(entries, next.abs) }))}</p>
+          <div class="row"><button class="btn primary sm" data-c="no">${esc(t('Не слышал'))}</button><button class="btn sm" data-c="yes">${esc(t('Слышал, она последняя'))}</button><button class="btn ghost sm" data-c="unsure">${esc(t('Не уверен, мог пропускать'))}</button></div>`
+        : `<div class="row"><button class="btn primary sm" data-c="unsure">${esc(t('Дальше: уточнить по кадрам'))}</button></div>`}</div>`;
+      box.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
+      $$('[data-c]', box).forEach(b => b.onclick = () => {
+        if (b.dataset.c === 'yes') return choose(list.indexOf(next));
+        start(b.dataset.c === 'no' ? next.abs : range().hi);
+      });
+    }
+  }
+
+  $('#start').onclick = () => startQuiz(range(), method);
+  renderMethod();
+  cleanup = () => { player?.v.pause(); descToken++; themeToken++; };
+}
+
+/* ---------- views: quiz ---------- */
+function viewQuiz(id) {
+  if (!session || session.id !== id) return go('#/a/' + id);
+  document.title = t('Вспоминаем: {title}', { title: nm(session) });
+  if (isDone(session.s)) return finish();
+  session.mode ||= 'frames';
+  let dir = 'r', token = 0;
+
+  app.innerHTML = `<div class="wrap quiz">
+    <div class="qbar">
+      <a class="btn ghost icon" href="#/a/${id}" aria-label="${esc(t('К тайтлу'))}"><i class="ph ph-arrow-left"></i></a>
+      <span class="grow" id="qtitle"></span>
+      <button class="btn ghost icon" id="t-mode"><i class="ph"></i></button>
+      ${lang !== 'en' ? `<button class="btn ghost icon" id="t-tr" aria-label="${esc(t('Перевод'))}"><i class="ph ph-translate"></i></button>` : ''}
+      <button class="btn ghost icon" id="t-sp" aria-label="${esc(t('Скрытие описаний'))}"><i class="ph"></i></button>
+    </div>
+    <div class="timeline" aria-hidden="true"><div class="segs">${session.entries.map(e => `<div style="flex:${e.count}" title="${esc(nm(e))}"></div>`).join('')}</div><div class="known"></div><div class="win"></div><div class="mark"></div><div class="ticks"></div></div>
+    <div id="stage"></div>
+  </div>`;
+  const setToggles = () => {
+    if ($('#t-tr')) { $('#t-tr').style.color = settings.translate ? 'var(--acc)' : ''; $('#t-tr').setAttribute('aria-pressed', settings.translate); }
+    $('#t-sp i').className = 'ph ' + (settings.spoilers ? 'ph-eye-slash' : 'ph-eye');
+    $('#t-sp').setAttribute('aria-pressed', settings.spoilers);
+    $('#t-mode i').className = 'ph ' + (session.mode === 'grid' ? 'ph-cards' : 'ph-squares-four');
+    $('#t-mode').setAttribute('aria-label', session.mode === 'grid' ? t('Перейти к одному кадру') : t('Перейти к сетке кадров'));
+    $('#t-mode').title = $('#t-mode').getAttribute('aria-label');
+  };
+  setToggles();
+  if ($('#t-tr')) $('#t-tr').onclick = () => { settings.translate = !settings.translate; saveSettings(); setToggles(); render(true); toast(settings.translate ? t('Перевод включён') : t('Перевод выключен')); };
+  $('#t-sp').onclick = () => { settings.spoilers = !settings.spoilers; saveSettings(); setToggles(); render(true); toast(settings.spoilers ? t('Описания скрыты') : t('Описания видны')); };
+  $('#t-mode').onclick = () => { session.mode = session.mode === 'grid' ? 'frames' : 'grid'; settings.quizMode = session.mode; saveSettings(); saveSession(); setToggles(); render(); toast(session.mode === 'grid' ? t('Сетка кадров') : t('По одному кадру')); };
+
+  function timeline(s, p, ticks = []) {
+    const T = session.total;
+    $('.known').style.width = `${((s.lo + 1) / T) * 100}%`;
+    $('.win').style.left = `${((s.lo + 1) / T) * 100}%`;
+    $('.win').style.width = `max(6px, ${((s.hi - s.lo - 1) / T) * 100}%)`;
+    $('.mark').style.display = p == null ? 'none' : '';
+    if (p != null) $('.mark').style.left = `${((p + .5) / T) * 100}%`;
+    $('.ticks').innerHTML = ticks.map(x => `<i style="left:${((x + .5) / T) * 100}%"></i>`).join('');
+  }
+  function prefetch(s) {
+    for (const v of ['yes', 'no']) {
+      const n = answer(s, v); if (isDone(n)) continue;
+      const p = locate(session.entries, probe(n));
+      episode(p.e, p.n).then(ep => { preload(ep.thumb); localize(ep.title); localize(ep.synopsis); }).catch(() => {});
+    }
+  }
+  const render = keepAnim => session.mode === 'grid' ? renderGrid(keepAnim) : renderOne(keepAnim);
+  const anim = keepAnim => keepAnim ? '' : 'slide-in' + (dir === 'l' ? ' from-l' : '');
+  const noData = () => `<div class="nodata"><i class="ph ph-image-broken"></i>${esc(t('Кадра из этой серии нет'))}</div>`;
+
+  async function renderOne(keepAnim) {
+    const s = session.s, p = probe(s), my = ++token;
+    const T = session.total;
+    timeline(s, p);
+    $('#qtitle').innerHTML = `${esc(nm(session))} <span class="mono" style="margin-left:6px">${esc(t('вопрос {n}, осталось ~{left}', { n: session.asked + 1, left: questionsLeft(s) }))}</span>`;
+    const loc = locate(session.entries, p);
+    const multi = session.entries.length > 1;
+    const stage = $('#stage');
+    stage.innerHTML = `<div class="qgrid ${anim(keepAnim)}">
+      <div class="shot" id="shot"><div class="skel" style="position:absolute;inset:0"></div><span class="stamp y">${esc(t('Помню'))}</span><span class="stamp n">${esc(t('Не помню'))}</span></div>
+      <div class="qinfo">
+        <div class="where">${multi ? `${esc(nm(loc.e))} · ` : ''}<b>${esc(loc.e.kind === 'movie' ? t('Фильм') : t('Серия {n}', { n: loc.n }))}</b>${multi ? ` <span class="mono">(${esc(t('{d} из {n}', { d: p + 1, n: T }))})</span>` : ` <span class="mono">${esc(t('из {n}', { n: loc.e.count }))}</span>`}</div>
+        <div id="info"><div class="skel skel-line" style="width:80%;height:26px"></div><div class="skel skel-line" style="width:40%"></div><div class="skel skel-line"></div><div class="skel skel-line"></div><div class="skel skel-line" style="width:70%"></div></div>
+        <div class="answers">
+          <button class="btn primary" data-v="yes"><i class="ph ph-check"></i>${esc(t('Помню'))}<kbd>→</kbd></button>
+          <button class="btn" data-v="no"><i class="ph ph-x"></i>${esc(t('Не помню'))}<kbd>←</kbd></button>
+          <button class="btn ghost wide" data-v="unsure"><i class="ph ph-question"></i>${esc(t('Не уверен, покажи соседнюю'))}<kbd>↓</kbd></button>
+        </div>
+        <div class="answers-sub"><button class="btn ghost sm" id="back" ${session.hist.length ? '' : 'disabled'}><i class="ph ph-arrow-u-up-left"></i>${esc(t('Назад'))}<kbd>Bksp</kbd></button>
+        <button class="btn ghost sm" id="stop"><i class="ph ph-flag-checkered"></i>${esc(t('Хватит, покажи итог'))}</button></div>
+      </div></div>`;
+    $$('[data-v]', stage).forEach(b => b.onclick = () => act(b.dataset.v));
+    $('#back').onclick = undo;
+    $('#stop').onclick = () => finish();
+    bindSwipe($('#shot'));
+    prefetch(s);
+
+    const ep = await episode(loc.e, loc.n).catch(() => null);
+    if (my !== token) return;
+    const shot = $('#shot');
+    const pic = ep?.thumb || (loc.e.kind === 'movie' ? loc.e.poster : '');
+    if (pic) {
+      const im = new Image(); im.alt = ep?.title || ''; im.decoding = 'async'; im.draggable = false;
+      if (!ep?.thumb) im.className = 'contain';
+      im.onload = () => { if (my === token) shot.querySelector('.skel')?.remove(); };
+      im.onerror = () => { if (my === token) shot.innerHTML = noData(); };
+      im.src = pic; shot.prepend(im);
+    } else { shot.querySelector('.skel').outerHTML = noData(); }
+
+    const origTitle = ep?.title || '', origSyn = ep?.synopsis || '';
+    const [title, syn] = await Promise.all([localize(origTitle), localize(origSyn)]);
+    if (my !== token) return;
+    const showAlt = origTitle && title !== origTitle ? origTitle : (ep?.alt || '');
+    $('#info').innerHTML = `<h2>${esc(title || (loc.e.kind === 'movie' ? nm(loc.e) : t('Серия {n}', { n: loc.n })))}</h2>
+      ${showAlt ? `<p class="alt">${esc(showAlt)}</p>` : '<div style="height:12px"></div>'}
+      ${syn ? `<div class="syn ${settings.spoilers ? 'hidden' : ''}" id="syn" data-label="${esc(t('Описание скрыто от спойлеров. Нажми, чтобы показать'))}" ${settings.spoilers ? 'role="button" tabindex="0"' : ''}><p>${esc(syn).replace(/\n+/g, '<br><br>')}</p></div>
+      ${origSyn !== syn ? `<div class="syn-tools"><button class="linkbtn" id="orig">${esc(t('Показать оригинал'))}</button></div>` : ''}`
+      : `<p class="mut" style="font-size:15px;margin:0">${esc(t('Описания этой серии нет. Ориентируйся на кадр или нажми «Не уверен».'))}</p>`}
+      ${ep?.airdate ? `<p class="mut mono" style="font-size:13px;margin:14px 0 0">${esc(t('Вышла {date}', { date: fmtDate(ep.airdate) }))}</p>` : ''}`;
+    const sy = $('#syn');
+    if (sy && settings.spoilers) { const open = () => { sy.classList.remove('hidden'); sy.removeAttribute('role'); }; sy.onclick = open; sy.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } }; }
+    if ($('#orig')) $('#orig').onclick = e => { const showO = !e.target.dataset.o; $('#syn p').innerHTML = esc(showO ? origSyn : syn).replace(/\n+/g, '<br><br>'); e.target.dataset.o = showO ? '1' : ''; e.target.textContent = showO ? t('Показать перевод') : t('Показать оригинал'); };
+  }
+
+  function renderGrid(keepAnim) {
+    const s = session.s, my = ++token, ps = gridProbes(s), multi = session.entries.length > 1;
+    timeline(s, null, ps);
+    $('#qtitle').innerHTML = `${esc(nm(session))} <span class="mono" style="margin-left:6px">${esc(t('шаг {n}, осталось ~{left}', { n: session.asked + 1, left: gridLeft(s) }))}</span>`;
+    $('#stage').innerHTML = `<div class="${anim(keepAnim)}">
+      <p class="gq-hint">${t('Выбери <b>самый поздний</b> кадр, который помнишь')}</p>
+      <div class="gq">${ps.map((p, j) => { const l = locate(session.entries, p); return `<button class="gcell" data-j="${j}"><div class="gshot skel"></div><div class="gmeta"><kbd class="gk">${j + 1}</kbd>${esc(multi ? nm(l.e) + ', ' : '')}${esc(epShort(l.e, l.n))}</div><div class="gt" data-t></div></button>`; }).join('')}</div>
+      <div class="gq-actions">
+        <button class="btn" id="none"><i class="ph ph-x"></i>${esc(t('Не помню ни один'))}<kbd>0</kbd></button>
+        <button class="btn ghost sm" id="back" ${session.hist.length ? '' : 'disabled'}><i class="ph ph-arrow-u-up-left"></i>${esc(t('Назад'))}<kbd>Bksp</kbd></button>
+        <button class="btn ghost sm" id="stop"><i class="ph ph-flag-checkered"></i>${esc(t('Хватит, покажи итог'))}</button>
+      </div></div>`;
+    $$('.gcell').forEach(b => b.onclick = () => pickGrid(+b.dataset.j));
+    $('#none').onclick = () => pickGrid(-1);
+    $('#back').onclick = undo;
+    $('#stop').onclick = () => finish();
+    ps.forEach(async (p, j) => {
+      const l = locate(session.entries, p);
+      const ep = await episode(l.e, l.n).catch(() => null);
+      if (my !== token) return;
+      const cell = $$('.gcell')[j]; if (!cell) return;
+      const pic = ep?.thumb || (l.e.kind === 'movie' ? l.e.poster : '');
+      const box = cell.querySelector('.gshot');
+      box.classList.remove('skel');
+      box.innerHTML = pic ? `<img src="${esc(pic)}" alt="" decoding="async" draggable="false" ${ep?.thumb ? '' : 'class="contain"'}>` : '<div class="nodata small"><i class="ph ph-image-broken"></i></div>';
+      const x = await localize(ep?.title || '');
+      if (my === token) cell.querySelector('[data-t]').textContent = x;
+    });
+  }
+
+  function act(v) {
+    session.hist.push(session.s);
+    session.s = answer(session.s, v);
+    if (v !== 'unsure') session.asked++;
+    saveSession();
+    dir = v === 'no' ? 'l' : 'r';
+    if (isDone(session.s)) return finish();
+    render();
+  }
+  function pickGrid(j) {
+    const ps = gridProbes(session.s);
+    if (j >= ps.length) return;
+    session.hist.push(session.s);
+    session.s = gridPick(session.s, j);
+    session.asked++; saveSession();
+    dir = j < 0 ? 'l' : 'r';
+    if (isDone(session.s)) return finish();
+    render();
+  }
+  function undo() {
+    if (!session.hist.length) return;
+    session.s = session.hist.pop();
+    session.asked = Math.max(0, session.asked - 1);
+    saveSession(); dir = 'l'; render();
+  }
+  function finish() {
+    const s = session.s;
+    session.result = { lo: s.lo, hi: s.hi };
+    saveSession();
+    go(`#/a/${id}/result`);
+  }
+  function bindSwipe(el) {
+    let x0 = null, dx = 0;
+    el.onpointerdown = e => { if (e.pointerType === 'mouse') return; x0 = e.clientX; dx = 0; el.style.transition = 'none'; el.setPointerCapture(e.pointerId); };
+    el.onpointermove = e => {
+      if (x0 == null) return; dx = e.clientX - x0;
+      el.style.transform = `translateX(${dx}px) rotate(${dx / 40}deg)`;
+      el.querySelector('.stamp.y').style.opacity = Math.max(0, Math.min(1, dx / 90));
+      el.querySelector('.stamp.n').style.opacity = Math.max(0, Math.min(1, -dx / 90));
+    };
+    el.onpointerup = el.onpointercancel = () => {
+      if (x0 == null) return; x0 = null;
+      el.style.transition = 'transform .3s var(--ease)';
+      el.style.transform = '';
+      $$('.stamp', el).forEach(x => x.style.opacity = 0);
+      if (Math.abs(dx) > 90) act(dx > 0 ? 'yes' : 'no');
+    };
+  }
+  const onKey = e => {
+    if (e.target.closest?.('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (k === 'Backspace') { e.preventDefault(); return undo(); }
+    if (session.mode === 'grid') {
+      if (/^[1-9]$/.test(k)) { e.preventDefault(); pickGrid(+k - 1); }
+      else if (k === '0' || k === 'ArrowLeft') { e.preventDefault(); pickGrid(-1); }
+      return;
+    }
+    if (k === 'ArrowRight') { e.preventDefault(); act('yes'); }
+    else if (k === 'ArrowLeft') { e.preventDefault(); act('no'); }
+    else if (k === 'ArrowDown') { e.preventDefault(); act('unsure'); }
+    else if (k === ' ' && $('#syn.hidden')) { e.preventDefault(); $('#syn').click(); }
+  };
+  addEventListener('keydown', onKey);
+  cleanup = () => { removeEventListener('keydown', onKey); token++; };
+  render();
+}
+
+/* ---------- views: result ---------- */
+async function viewResult(id) {
+  if (!session || session.id !== id || !session.result) {
+    const it = lib().find(x => x.id === id);
+    return it ? go('#/a/' + id) : go('#/');
+  }
+  const S = session, { lo, hi } = S.result, T = S.total, E = S.entries;
+  const exact = hi - lo <= 1;
+  const nextAbs = lo + 1;
+  document.title = t('Итог: {title}', { title: nm(S) });
+  upsertLib(libItem({ id, title: S.title, ru: S.ru, en: S.en, poster: S.poster, url: S.url, entries: E, pos: lo }));
+
+  let h1, sub;
+  if (lo < 0 && exact) { h1 = t('Начни с <b>первой серии</b>'); sub = t('Похоже, ты не помнишь даже начало. Так даже лучше: посмотришь всё заново.'); }
+  else if (nextAbs >= T) { h1 = t('Ты всё <b>досмотрел</b>'); sub = E.some(e => e.status === 'ongoing') ? t('Новых серий пока нет. Загляни позже: онгоинг продолжается.') : t('Похоже, история пройдена до конца.'); }
+  else if (exact) {
+    const a = locate(E, lo), b = locate(E, nextAbs);
+    h1 = a.e.kind === 'movie' ? t('Ты остановился на <b>фильме</b>') : t('Ты остановился на <b>{n}-й серии</b>', { n: a.n });
+    const nxt = b.e.id === a.e.id ? t('серия {n}', { n: b.n }) : b.e.kind === 'movie' ? t('фильм «{title}»', { title: nm(b.e) }) : `${nm(b.e)}, ${t('серия {n}', { n: b.n })}`;
+    sub = (E.length > 1 ? `${nm(a.e)}. ` : '') + t('Дальше: {what}.', { what: nxt });
+  }
+  else {
+    const b = locate(E, nextAbs);
+    h1 = b.e.kind === 'movie' ? t('Продолжай с <b>фильма</b>') : t('Продолжай с <b>{n}-й серии</b>', { n: b.n });
+    // hi === T means the upper bound was never checked (stopped early after a "yes")
+    const why = hi >= T ? t('Точнее определить не вышло: ты помнишь {a}, а дальше мы не проверяли.', { a: acc(E, lo) })
+      : lo < 0 ? t('Точнее определить не вышло: ты не помнишь {b}.', { b: acc(E, hi) })
+      : t('Точнее определить не вышло: ты помнишь {a}, но не помнишь {b}.', { a: acc(E, lo), b: acc(E, hi) });
+    sub = (E.length > 1 ? `${nm(b.e)}. ` : '') + why + ' ' + t('Начни отсюда, в худшем случае пересмотришь пару знакомых серий.');
+  }
+  if (nextAbs < T) sub += ' ' + t('Осталось {eps}, это примерно {time}.', { eps: epsWord(T - nextAbs), time: fmtDur(minutesLeft(E, lo)) });
+  const via = { describe: t('по описанию'), themes: t('по опенингам') }[S.via];
+  const steps = S.asked ? (S.mode === 'grid' ? stepWord(S.asked) : qWord(S.asked)) : '';
+  const how = [via, steps].filter(Boolean).join(t(' и '));
+
+  const epCard = (abs, kind) => {
+    const p = locate(E, abs); if (!p) return '';
+    return `<article class="epcard ${kind}" data-abs="${abs}"><div class="img skel"></div><div class="body">
+      <div class="k">${esc(kind === 'next' ? t('Смотреть дальше') : t('Последняя, которую помнишь'))} · ${esc(E.length > 1 ? `${nm(p.e)}, ` : '')}${esc(epShort(p.e, p.n))}</div>
+      <h3 class="ttl"><span class="skel skel-line" style="display:block;width:70%"></span></h3></div></article>`;
+  };
+  const watchQ = nextAbs < T ? (() => { const p = locate(E, nextAbs); return `${nm(p.e)} ${p.e.kind === 'movie' ? '' : t('{n} серия', { n: p.n })} ${t('смотреть')}`; })() : `${nm(S)} ${t('смотреть')}`;
+
+  app.innerHTML = `<div class="backdrop">${S.poster ? `<img src="${esc(S.poster)}" alt="">` : ''}</div>
+  <div class="wrap result fade-in">
+    <p class="lead">${esc([nm(S), how].filter(Boolean).join(' · '))}</p>
+    <h1>${h1}</h1>
+    <p class="sub">${esc(sub)}</p>
+    <div class="pair">${lo >= 0 ? epCard(lo, 'last') : ''}${nextAbs < T ? epCard(nextAbs, 'next') : ''}</div>
+    <div class="actions">
+      ${lo >= 0 ? `<button class="btn primary" id="recap-b"><i class="ph ph-clock-counter-clockwise"></i>${esc(t('Напомнить, что было'))}</button>` : ''}
+      <a class="btn" href="https://www.google.com/search?q=${encodeURIComponent(watchQ)}" target="_blank" rel="noopener"><i class="ph ph-play-circle"></i>${esc(t('Где смотреть'))}</a>
+      <button class="btn" id="copy"><i class="ph ph-copy"></i>${esc(t('Скопировать'))}</button>
+      ${S.url ? `<a class="btn ghost" href="${esc(S.url)}" target="_blank" rel="noopener"><i class="ph ph-arrow-square-out"></i>Shikimori</a>` : ''}
+      <button class="btn ghost" id="again"><i class="ph ph-arrow-counter-clockwise"></i>${esc(t('Пройти заново'))}</button>
+    </div>
+    <div id="recap"></div>
+    <p class="mut" style="font-size:14px;margin-top:32px"><i class="ph ph-bookmark-simple" style="color:var(--acc)"></i> ${t('Сохранено в <a href="#/library">Мои тайтлы</a>. Отмечай там просмотренные серии, и больше не придётся вспоминать.')}</p>
+  </div>`;
+
+  $$('.epcard').forEach(async card => {
+    const abs = +card.dataset.abs, p = locate(E, abs);
+    const ep = await episode(p.e, p.n).catch(() => null);
+    const pic = ep?.thumb || p.e.poster;
+    card.querySelector('.img').outerHTML = `<div class="img">${pic ? `<img src="${esc(pic)}" alt="" style="${ep?.thumb ? '' : 'object-fit:contain;background:#0b0c0e'}">` : ''}</div>`;
+    card.querySelector('.ttl').textContent = ep?.title ? await localize(ep.title) : (p.e.kind === 'movie' ? nm(p.e) : t('Серия {n}', { n: p.n }));
+  });
+
+  $('#copy').onclick = async () => {
+    const txt = exact && lo >= 0 ? t('{title}: остановился на {ep}.', { title: nm(S), ep: label(E, lo) }) + (nextAbs < T ? ' ' + t('Дальше: {what}.', { what: label(E, nextAbs) }) : '') : t('{title}: продолжать с {ep}.', { title: nm(S), ep: label(E, Math.min(nextAbs, T - 1)) });
+    try { await navigator.clipboard.writeText(txt); toast(t('Скопировано')); } catch { toast(txt); }
+  };
+  $('#again').onclick = () => { session = null; saveSession(); go('#/a/' + id); };
+  if ($('#recap-b')) $('#recap-b').onclick = async e => {
+    e.currentTarget.disabled = true;
+    const box = $('#recap');
+    const idx = [lo - 2, lo - 1, lo].filter(i => i >= 0);
+    box.innerHTML = `<div class="recap"><h2>${esc(t('Что было в последних сериях'))}</h2>${idx.map(() => `<div class="recap-item"><div class="img skel"></div><div><div class="skel skel-line" style="width:50%"></div><div class="skel skel-line"></div><div class="skel skel-line"></div></div></div>`).join('')}</div>`;
+    box.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    const items = await Promise.all(idx.map(async i => {
+      const p = locate(E, i);
+      const [ep, wk] = await Promise.all([episode(p.e, p.n).catch(() => null), wikiForEntry(p.e, E[0]).catch(() => [])]);
+      // the recap wants the detailed Wikipedia summary when there is one
+      const [tt, s] = await Promise.all([localize(ep?.title || ''), localize(wk[p.n - 1]?.sum || ep?.synopsis || '')]);
+      return { p, ep, tt, s };
+    }));
+    box.innerHTML = `<div class="recap fade-in"><h2>${esc(t('Что было в последних сериях'))}</h2>${items.map(({ p, ep, tt, s }) => `<div class="recap-item">
+      <div class="img">${ep?.thumb ? `<img src="${esc(ep.thumb)}" alt="" loading="lazy">` : ''}</div>
+      <div><div class="mut" style="font-size:13px">${esc(E.length > 1 ? nm(p.e) + ', ' : '')}${esc(epShort(p.e, p.n))}</div><h3>${esc(tt || t('Без названия'))}</h3><p>${esc(s || t('Описания нет.'))}</p></div></div>`).join('')}</div>`;
+  };
+}
+
+paintChrome();
+route();
+
+// Installable app: only when served over https (GitHub Pages), not from disk
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
