@@ -1,7 +1,6 @@
 # AniMemory 
 <p align="center"><img src="banner.svg" alt="AniMemory" width="100%"></p>
 
----
 
 **Which episode was I on?** Find the anime episode you stopped at by stills, openings, a screenshot or a plot description.
 Dropped an anime a couple of years ago and can't remember where you stopped? This site helps you find out.
