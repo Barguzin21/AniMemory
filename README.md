@@ -1,15 +1,13 @@
 <p align="center"><img src="banner.svg" alt="AniMemory" width="100%"></p>
 
-<h2 align="center">Which episode was I on?</h2>
+<h3 align="center">Which episode was I on?</h3>
 
 <p align="center">
 Dropped an anime a couple of years ago and can't remember where you stopped?<br>
 Find your episode by stills, openings, a screenshot or a plot description.
 </p>
 
-<p align="center"><b><a href="https://barguzin21.github.io/AniMemory/">👉 Open the website</a></b></p>
-
-<p align="center"><a href="#ru">Читать на русском ↓</a></p>
+<p align="center"><b><a href="https://barguzin21.github.io/AniMemory/">Open the website</a></b></p>
 
 <h3>Ways to remember</h3>
 
@@ -30,16 +28,14 @@ Find your episode by stills, openings, a screenshot or a plot description.
 
 <sub>Data: Shikimori, AniList, Kitsu, TVmaze, Wikipedia, AnimeThemes, trace.moe · © All rights reserved.</sub>
 
-<br><br>
-
-<h2 align="center" id="ru">На какой я серии?</h2>
+<h3 align="center">На какой я серии?</h3>
 
 <p align="center">
 Бросил аниме пару лет назад и не помнишь, где остановился?<br>
 Найди свою серию по кадрам, опенингам, скриншоту или описанию сюжета.
 </p>
 
-<p align="center"><b><a href="https://barguzin21.github.io/AniMemory/">👉 Открыть сайт</a></b></p>
+<p align="center"><b><a href="https://barguzin21.github.io/AniMemory/">Открыть сайт</a></b></p>
 
 <h3>Как вспомнить</h3>
 
