@@ -5,7 +5,7 @@
 **Which episode was I on?** Find the anime episode you stopped at by stills, openings, a screenshot or a plot description.
 Dropped an anime a couple of years ago and can't remember where you stopped? This site helps you find out.
 
-**Website:** [https://shaurma2287.github.io/AniMemory/](https://barguzin21.github.io/AniMemory/)
+**Website:** https://barguzin21.github.io/AniMemory/
 
 ## Ways to remember
 
@@ -34,7 +34,7 @@ Data: Shikimori, AniList, Kitsu, TVmaze, Wikipedia, AnimeThemes, trace.moe.
 Вспомни, на какой серии аниме ты остановился: по кадрам, опенингам, скриншоту или описанию сюжета.
 Бросил аниме пару лет назад и не помнишь, где остановился? Этот сайт поможет вспомнить.
 
-**Сайт:** [https://твой-ник.github.io/seriya/](https://barguzin21.github.io/AniMemory/)
+**Сайт:** https://barguzin21.github.io/AniMemory/
 
 ## Как вспомнить
 
