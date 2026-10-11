@@ -28,6 +28,8 @@ Find your episode by stills, openings, a screenshot or a plot description.
 
 <sub>Data: Shikimori, AniList, Kitsu, TVmaze, Wikipedia, AnimeThemes, trace.moe · © All rights reserved.</sub>
 
+---
+
 <h3 align="center">На какой я серии?</h3>
 
 <p align="center">
