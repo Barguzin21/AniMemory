@@ -1,4 +1,5 @@
-# AniMemory <p align="center"><img src="banner.svg" alt="AniMemory" width="100%"></p>
+# AniMemory 
+<p align="center"><img src="banner.svg" alt="AniMemory" width="100%"></p>
 
 # Which episode was I on?
 
